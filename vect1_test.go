@@ -4,29 +4,63 @@ import (
 	. "github.com/intdxdt/simplex/util/math"
 	"github.com/stretchr/testify/assert"
 	"testing"
-//	"fmt"
 	"math"
 )
 
 const prec = 8
 const eps = 1.0e-12
 
-var A = []float64{0.88682, -1.06102}
-var B = []float64{3.5, 1}
-var C = []float64{-3, 1}
-var D = []float64{-1.5, -3}
+var A = Vect2D{0.88682, -1.06102}
+var B = Vect2D{3.5, 1}
+var C = Vect2D{-3, 1}
+var D = Vect2D{-1.5, -3}
+
+func min_val(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func float_cmp(a, b []float64) bool {
+	bl := true
+	N := min_val(len(a), len(b))
+	for i := 0; i < N; i++ {
+		bl = bl && (a[i] == b[i])
+	}
+	return bl
+}
+
+func make_slice(a interface{}) []float64 {
+	var val []float64
+	switch v := a.(type) {
+	case [2]float64:
+		val = v[:]
+	case [3]float64:
+		val = v[:]
+	case []float64:
+		val = v[:]
+	}
+	return val
+}
+
+func cmp_array(a, b interface{}) bool {
+	_a := make_slice(a)
+	_b := make_slice(b)
+	return float_cmp(_a, _b)
+}
 
 //Test Init Vector
 func TestInitVector(t *testing.T) {
 	v := New(map[string]interface{}{})
-	vals := [][]float64{v.A(), v.B(), v.V()}
+	vals := []Vect2D{v.A(), v.B(), v.V()}
 	// assert equality
 	for _, v := range vals {
-		assert.InDeltaSlice(t, v, []float64{0, 0}, eps)
+		assert.Equal(t, v, Vect2D{0, 0}, "array should be equal")
 	}
 	mdatbt := []float64{v.m, v.d, v.at, v.bt}
 	for _, v := range mdatbt {
-		assert.Equal(t, v, 0.0, "should be equal")
+		assert.Equal(t, v, 0.0)
 	}
 }
 
@@ -40,12 +74,12 @@ func Test_Neg(t *testing.T) {
 	})
 	pv := v.v
 	nv := Neg(v.v)
-	negA := make([]float64, len(A))
+	negA := Vect2D{}
 	for i, v := range A {
 		negA[i] = -v
 	}
 	assert.Equal(t, nv, Mult(-1, pv), "negation should be equal")
-	assert.InDeltaSlice(t, Neg(A), negA, eps)
+	assert.Equal(t, Neg(A), negA, "array should be equal")
 }
 
 //Test Vect
@@ -59,62 +93,60 @@ func TestVect(t *testing.T) {
 	vi := New(map[string]interface{}{"a": i, "i": e})
 	vk := New(map[string]interface{}{"d": Torad(53.13010235415598), "m": 5.0})
 
-	assert.InDeltaSlice(t, vk.a, []float64{0,0}, eps)
-	assert.InDeltaSlice(t, vk.b, []float64{3.0,4.0}, eps)
+	assert.True(t, cmp_array(vk.a, Vect2D{0, 0}))
+	assert.True(t, cmp_array(vk.b, Vect2D{3.0, 4.0}))
 
-	assert.InDeltaSlice(t, v.a, vo.a, eps)
-	assert.InDeltaSlice(t, v.A(), vo.a, eps)
-	assert.InDeltaSlice(t, v.b, vo.b, eps)
-	assert.InDeltaSlice(t, v.B(), vo.b, eps)
+	assert.True(t, cmp_array(v.a, vo.a))
+	assert.True(t, cmp_array(v.A(), vo.a))
+	assert.True(t, cmp_array(v.b, vo.b))
+	assert.True(t, cmp_array(v.B(), vo.b))
 
-	assert.InDelta(t, v.m, vo.m, eps)
-	assert.InDelta(t, v.M(), vo.m, eps)
-	assert.InDelta(t, v.d, vo.d, eps)
-	assert.InDelta(t, v.D(), vo.d, eps)
+	assert.Equal(t, v.m, vo.m)
+	assert.Equal(t, v.M(), vo.m)
+	assert.Equal(t, v.d, vo.d)
+	assert.Equal(t, v.D(), vo.d)
 
-	assert.InDeltaSlice(t, v.a, a[0:2], eps)
-	assert.InDeltaSlice(t, v.b, e[0:2], eps)
-	assert.InDeltaSlice(t, vi.a, i[0:2], eps)
-	assert.InDeltaSlice(t, vi.b, vi.a, eps)
+	assert.True(t, cmp_array(v.a, a[0:2]))
+	assert.True(t, cmp_array(v.b, e[0:2]))
+	assert.True(t, cmp_array(vi.a, i[0:2]))
+	assert.True(t, cmp_array(vi.b, vi.a))
 
 	assert.Equal(t, v.at, a[2])
 	assert.Equal(t, v.At(), a[2])
 	assert.Equal(t, v.bt, e[2])
 	assert.Equal(t, v.Bt(), e[2])
-	assert.Equal(t, v.Dt(), e[2]-a[2])
+	assert.Equal(t, v.Dt(), e[2] - a[2])
 
-
-	d := Sub(e, a)
+	_a := Vect2D{a[0], a[1]}
+	_e := Vect2D{e[0], e[1]}
+	d := Sub(_e, _a)
 	assert.Equal(t, v.m, Mag(d[0], d[1]))
 }
 
 func TestMagDist(t *testing.T) {
-	a := []float64{0, 0 }
-	b := []float64{3, 4 }
-	c := []float64{3}
+	a := Vect2D{0, 0 }
+	b := Vect2D{3, 4 }
 
 	assert.Equal(t, Mag(1, 1), math.Sqrt(2))
 	assert.Equal(t,
 		Round(Mag(-3, 2), 8),
 		Round(3.605551275463989, 8),
 	)
+
 	assert.Equal(t, Mag(3, 4), 5.0)
 	assert.Equal(t, Dist(a, b), 5.0)
-	assert.Equal(t, math.IsNaN(Dist(a, c)), true)
-	assert.Equal(t, math.IsNaN(Dist(c, a)), true)
 
 	assert.Equal(t, Mag2(3, 4), 25.0)
 	assert.Equal(t, Dist2(a, b), 25.0)
-	assert.Equal(t, math.IsNaN(Dist2(c, a)), true)
-	assert.Equal(t, math.IsNaN(Dist2(a, c)), true)
+
 
 	assert.Equal(t, Mag(4.587, 0.), 4.587)
 }
 
 func TestDir(t *testing.T) {
 	v := New(map[string]interface{}{
-		"a": []float64{0, 0},
-		"b": []float64{-1, 0},
+		"a": Vect2D{0, 0},
+		"b": Vect2D{-1, 0},
 	})
 	assert.Equal(t, Dir(1, 1), 0.7853981633974483)
 	assert.Equal(t, Dir(-1, 0), math.Pi)
@@ -125,8 +157,8 @@ func TestDir(t *testing.T) {
 
 func TestRevdir(t *testing.T) {
 	v := New(map[string]interface{}{
-		"a": []float64{0, 0},
-		"b": []float64{-1, 0},
+		"a": Vect2D{0, 0},
+		"b": Vect2D{-1, 0},
 	})
 	assert.Equal(t, Revdir(v.d), 0.0)
 	assert.Equal(t, Revdir(0.7853981633974483), 0.7853981633974483+math.Pi)
@@ -134,8 +166,8 @@ func TestRevdir(t *testing.T) {
 }
 
 func TestDeflection(t *testing.T) {
-	ln0 := [][]float64{{0, 0}, {20, 30}}
-	ln1 := [][]float64{{20, 30}, {40, 15}}
+	ln0 := []Vect2D{{0, 0}, {20, 30}}
+	ln1 := []Vect2D{{20, 30}, {40, 15}}
 
 	v0 := New(map[string]interface{}{"a": ln0[0], "b": ln0[1]})
 	v1 := New(map[string]interface{}{"a": ln1[0], "b": ln1[1]})
@@ -143,7 +175,7 @@ func TestDeflection(t *testing.T) {
 	assert.Equal(t, Round(Deflect(v0.d, v1.d), 10), Round(Torad(93.17983011986422), 10))
 	assert.Equal(t, Round(Deflect(v0.d, v0.d), 10), Torad(0.0))
 
-	ln1 = [][]float64{{20, 30}, {20, 60}}
+	ln1 = []Vect2D{{20, 30}, {20, 60}}
 	v1 = New(map[string]interface{}{"a": ln1[0], "b": ln1[1]})
 
 	assert.Equal(t,
@@ -153,9 +185,9 @@ func TestDeflection(t *testing.T) {
 }
 
 func TestAngleAtPnt(t *testing.T) {
-	a := []float64{-1.28, 0.74}
-	b := []float64{1.9, 4.2}
-	c := []float64{3.16, -0.84}
+	a := Vect2D{-1.28, 0.74}
+	b := Vect2D{1.9, 4.2}
+	c := Vect2D{3.16, -0.84}
 	v := New(map[string]interface{}{"a": b, "b": c})
 	assert.Equal(t,
 		Round(AngleAtPt(a, b, c), 8),
@@ -173,31 +205,31 @@ func TestAngleAtPnt(t *testing.T) {
 
 func TestAdd(t *testing.T) {
 	negDplusB := Add(Neg(D), B)
-	assert.InDeltaSlice(t, negDplusB, []float64{5.0, 4.0}, eps)
+	assert.Equal(t, negDplusB, Vect2D{5.0, 4.0})
 }
 
 func TestSub(t *testing.T) {
 	CminusD := Sub(C, D)
-	assert.InDeltaSlice(t, CminusD, []float64{-1.5, 4}, eps)
+	assert.Equal(t, CminusD, Vect2D{-1.5, 4})
 	CminusD = Sub(C, D)
-	assert.InDeltaSlice(t, CminusD, []float64{-1.5, 4}, eps)
+	assert.Equal(t, CminusD, Vect2D{-1.5, 4})
 }
 
 func TestUnit(t *testing.T) {
 
-	v := []float64{-3, 2, 4}
+	v := Vect2D{-3, 2}
 	unit_v := Unit(v)
 	for i, v := range unit_v {
 		unit_v[i] = Round(v, 6)
 	}
-	assert.InDeltaSlice(t,
-		[]float64{-0.83205, 0.5547}, unit_v, eps,
+	assert.Equal(t,
+		Vect2D{-0.83205, 0.5547}, unit_v,
 	)
 }
 
 //dot perform dot in 2d even when 3d coords are passed
 func TestDot(t *testing.T) {
-	dot_prod := Dot([]float64{1.2, -4.2, 3.5}, []float64{1.2, -4.2, 3.5});
+	dot_prod := Dot(Vect2D{1.2, -4.2}, Vect2D{1.2, -4.2});
 	assert.Equal(t, 19.08, Round(dot_prod, 8));
 }
 

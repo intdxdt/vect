@@ -6,48 +6,48 @@ import (
 	"testing"
 )
 
-var A2 = []float64{0.88682, -1.06102}
-var B2 = []float64{3.5, 1}
-var C2 = []float64{-3, 1}
-var D2 = []float64{-1.5, -3}
+var A2 = Vect2D{0.88682, -1.06102}
+var B2 = Vect2D{3.5, 1}
+var C2 = Vect2D{-3, 1}
+var D2 = Vect2D{-1.5, -3}
 
-var va_opts = map[string]interface{}{"a": []float64{0, 0}, "m": 25, "d": Torad(165)}
+var va_opts = map[string]interface{}{"a": Vect2D{0, 0}, "m": 25, "d": Torad(165)}
 var va = New(va_opts)
-var va_b = []float64{-24.148145657226706, 6.470476127563026}
+var va_b = Vect2D{-24.148145657226706, 6.470476127563026}
 
 //Test Init Vector
 func TestDistToVect(t *testing.T) {
 
-	a := []float64{16.82295, 10.44635}
-	b := []float64{28.99656, 15.76452}
-	on_ab := []float64{25.32, 14.16}
+	a := Vect2D{16.82295, 10.44635}
+	b := Vect2D{28.99656, 15.76452}
+	on_ab := Vect2D{25.32, 14.16}
 
-	tpoints := [][]float64{
-		{30., 0.}, {15.78786, 25.26468}, {-2.61504, -3.09018},
-		{28.85125, 27.81773}, a, b, on_ab,
+	tpoints := []Vect2D{
+		{30., 0.},
+		{15.78786, 25.26468},
+		{-2.61504, -3.09018},
+		{28.85125, 27.81773},
+		a, b, on_ab,
 	}
 
-	tmindist := []float64{14.85, 13.99, 23.69, 12.05, 0.00, 0.00, 0.00}
+	t_dists := []float64{14.85, 13.99, 23.69, 12.05, 0.00, 0.00, 0.00}
 	tvect := New(map[string]interface{}{"a": a, "b": b})
-	min_dists := make([]float64, len(tpoints))
+	dists := make([]float64, len(tpoints))
 
 	for i, tp := range tpoints {
-		min_dists[i] = tvect.DistToPt(tp)
+		dists[i] = tvect.DistToPt(tp)
 	}
 
 	for i, _ := range tpoints {
-		assert.Equal(t,
-			Round(min_dists[i], 2),
-			Round(tmindist[i], 2),
-		)
+		assert.Equal(t, Round(dists[i], 2), Round(t_dists[i], 2), )
 	}
-
 }
 
+
 func TestSideOfVect(t *testing.T) {
-	k := []float64{-0.887, -1.6128}
-	u := []float64{4.55309, 1.42996}
-	testpoints := [][]float64{
+	k := Vect2D{-0.887, -1.6128}
+	u := Vect2D{4.55309, 1.42996}
+	testpoints := []Vect2D{
 		{2, 2}, {0, 2}, {0, -2}, {2, -2}, {0, 0}, {2, 0}, u, k,
 	}
 	v := New(map[string]interface{}{"a": k, "b": u})
@@ -56,7 +56,7 @@ func TestSideOfVect(t *testing.T) {
 	for i, pnt := range testpoints {
 		sides[i] = v.SideOfPt(pnt)
 	}
-	assert.Equal(t, "left", v.SideOfPt([]float64{2, 2}))
+	assert.Equal(t, "left", v.SideOfPt(Vect2D{2, 2}))
 	side_out := []string{left, left, right, right, left, right, right, right}
 
 	for i, _ := range side_out {
@@ -65,13 +65,21 @@ func TestSideOfVect(t *testing.T) {
 }
 
 func TestSEDVect(t *testing.T) {
-	a := []float64{10, 150, 6.5}
-	e := []float64{280, 280, 12.8}
-	i := []float64{185, 155, 8.6}
-	v := New(map[string]interface{}{"a": a[0:2], "b": e[0:2], "at": a[2], "bt": e[2]})
+	a  := Vect3D{10, 150, 6.5}
+	e  := Vect3D{280, 280, 12.8}
+	i  := Vect3D{185, 155, 8.6}
+	ai := Vect2D{i[0], i[1]}
+	v  := New(map[string]interface{}{
+		"a": a[0:2],
+		"b": e[0:2],
+		"at": a[2],
+		"bt": e[2],
+	})
 
-	sed_v := v.SEDvect(i[0:2], i[2])
-	sed_v2 := v.SEDvect(i, i[2])
+	sed_v  := v.SEDvect(ai, i[2])
+	sed_v2 := v.SEDvect(ai, i[2])
+
+
 	assert.Equal(t, Round(sed_v.m, prec), 93.24400487)
 	assert.Equal(t, Round(sed_v2.m, prec), 93.24400487)
 
@@ -127,7 +135,7 @@ func TestExtVect(t *testing.T) {
 	// deflect to c from begin
 	vdeflC_fromD := vdb.Deflectvect(4.272001872658765, Torad(180-inclangle_D), false)
 	// "comparing extend and deflect from begin point D"
-	assert.InDeltaSlice(t, vextC_fromD.b, vdeflC_fromD.b, Eps)
+	assert.True(t, cmp_array(vextC_fromD.b, vdeflC_fromD.b))
 	// "vextc from B and from D : extending vdb by angle to C"
 	assert.Equal(t, Round(vextC_fromD.b[0], prec), Round(vextc.b[0], prec))
 	// "vextc from B and from D : extending vdb by angle to C"
