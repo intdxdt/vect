@@ -35,7 +35,7 @@ func TestDistToVect(t *testing.T) {
 	dists := make([]float64, len(tpoints))
 
 	for i, tp := range tpoints {
-		dists[i] = tvect.DistToPt(tp)
+		dists[i] = tvect.Dist2Pt(tp)
 	}
 
 	for i, _ := range tpoints {

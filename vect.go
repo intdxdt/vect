@@ -26,33 +26,33 @@ type vector struct {
 	v  Vect2D
 }
 
-//Get begin point [x, y]
+//A gets begin point [x, y]
 func (v *vector) A() Vect2D { return v.a }
 
-//Get end point [x, y]
+//B gets end point [x, y]
 func (v *vector) B() Vect2D { return v.b }
 
-//Get component vector
+//V gets component vector
 func (v *vector) V() Vect2D { return v.v }
 
-//Get Magnitude of Vector
+//M gets magnitude of Vector
 func (v *vector) M() float64 { return v.m }
 
-//Get Direction of Vector
+//D gets Direction of Vector
 func (v *vector) D() float64 { return v.d }
 
-//Get Time at begin point :number
+//At gets  time at begin point :number
 func (v *vector) At() float64 { return v.at }
 
-//Get Time at end point
+//Bt gets Time at end point
 func (v *vector) Bt() float64 { return v.bt }
 
-//Change in time
+//Dt computs the change in time
 func (v *vector) Dt() float64 {
 	return math.Abs(v.bt - v.at)
 }
 
-//Side of pnt to vector
+//SideOfPt computes the relation of a point to a vector
 func (v *vector) SideOfPt(pnt Vect2D) string {
 	//	p := pnt[:dim2D]
 	ax, ay := v.a[x], v.a[y]
@@ -69,9 +69,8 @@ func (v *vector) SideOfPt(pnt Vect2D) string {
 	return "right"
 }
 
-//Synchronized Euclidean Distance - Vector
+//SEDvect computes the Synchronized Euclidean Distance - Vector
 func (v *vector) SEDvect(pnt Vect2D, t float64) vector {
-	//	a := pnt[:dim2D]
 	m := (v.m / v.Dt()) * (t - v.at)
 	vb := v.Extvect(m, 0.0, false)
 	return New(map[string]interface{}{
@@ -79,12 +78,12 @@ func (v *vector) SEDvect(pnt Vect2D, t float64) vector {
 	})
 }
 
-//Extend vector from the end = true or from the begin point
-func (v *vector)  Extvect(mag, angl float64, end bool) vector {
+//Extvect extends vector from the from end (from_end is true) else from begin of vector
+func (v *vector)  Extvect(mag, angl float64, from_end bool) vector {
 	//from a of v back direction innitiates as fwd v direction anticlockwise
 	backdir := v.d
-	a 		:= v.a
-	if end {
+	a := v.a
+	if from_end {
 		if v.d >= π {
 			backdir = v.d - π
 		}else {
@@ -101,19 +100,20 @@ func (v *vector)  Extvect(mag, angl float64, end bool) vector {
 	})
 }
 
-//Deflect vector
-func (v *vector) Deflectvect(mag, deflangl float64, end bool) vector {
+//Deflect_vector computes vector deflection given deflection angle and
+// side of vector to deflect from (from_end)
+func (v *vector) Deflect_vector(mag, deflangl float64, from_end bool) vector {
 	angl := π - deflangl
-	return v.Extvect(mag, angl, end)
+	return v.Extvect(mag, angl, from_end)
 }
 
-//Distance to Vect
+//Dist2Pt computes distance from a point to Vect
 // Minimum distance to vector from a point
 // compute the minimum distance between point and vector
 // if points outside the range of the vector the minimum distance
 // is not perperndicular to the vector
 // Ref: http://www.mappinghacks.com/code/PolyLineReduction/
-func (v *vector) DistToPt(pnt Vect2D) float64 {
+func (v *vector) Dist2Pt(pnt Vect2D) float64 {
 	precision := 12
 	u := New(map[string]interface{}{"a":v.a, "b":pnt})
 	dist_uv := Proj(u.v, v.v)
@@ -138,9 +138,9 @@ func (v *vector) DistToPt(pnt Vect2D) float64 {
 		h := Round(math.Abs(u.m), precision)
 		a := Round(math.Abs(dist_uv), precision)
 
-		if FloatEq(h, 0.0) && FloatEq(a, 0.0) {
+		if Float_equal(h, 0.0) && Float_equal(a, 0.0) {
 			result = 0.0
-		}else {
+		} else {
 			r := Round(a / h, precision)
 			// to avoid numeric overflow
 			result = h * math.Sqrt(1 - r * r)
@@ -151,7 +151,7 @@ func (v *vector) DistToPt(pnt Vect2D) float64 {
 }
 
 
-//Vector constructor
+//New create a new Vector
 func New(opts map[string]interface{}) vector {
 	var a, b, v Vect2D
 	var slice_a []float64 = init2d(opts, "a")
@@ -225,7 +225,7 @@ func init2d(opts map[string]interface{}, attr string) []float64 {
 	if _, ok := opts[attr]; ok {
 		if sa, _ok := opts[attr].(Vect2D); _ok {
 			pt[x], pt[y] = sa[x], sa[y]
-		}else if sa, _ok := opts[attr].(Vect3D); _ok {
+		} else if sa, _ok := opts[attr].(Vect3D); _ok {
 			pt[x], pt[y], pt[z] = sa[x], sa[y], sa[z]
 		} else if sa, _ok := opts[attr].([]float64); _ok {
 			pt[x], pt[y] = sa[x], sa[y]
@@ -234,13 +234,13 @@ func init2d(opts map[string]interface{}, attr string) []float64 {
 			}
 		}
 	} else {
-			pt = make([]float64, 0)
+		pt = make([]float64, 0)
 	}
 
 	return pt
 }
 
-//Initlialize values as numbers
+//initval - initlialize values as numbers
 func initval(opts map[string]interface{}, attr string) float64 {
 	var v float64
 
@@ -254,7 +254,7 @@ func initval(opts map[string]interface{}, attr string) float64 {
 	return v
 }
 
-//Direction in radians - counter clockwise from x-axis.
+//Dir computes direction in radians - counter clockwise from x-axis.
 func Dir(x, y float64) float64 {
 	d := math.Atan2(y, x)
 	if d < 0 {
@@ -263,7 +263,7 @@ func Dir(x, y float64) float64 {
 	return d
 }
 
-//Reverse direction
+//Revdir computes the reversed direction from a foward direction
 func Revdir(d float64) float64 {
 	if d < π {
 		return d + π
