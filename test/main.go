@@ -8,7 +8,7 @@ import (
 func main() {
 	a := []float64{10, 150, 6.5}
 	e := []float64{280, 280, 12.8}
-	v := vect.New(map[string]interface{}{
+	v := vect.NewVect(map[string]interface{}{
 		"a": a, "b": e,
 		"at": a[2], "bt": e[2],
 	})
