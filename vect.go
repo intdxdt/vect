@@ -19,6 +19,13 @@ const (
     k
 )
 
+type Side int
+
+var Sided = struct {
+    Left  Side
+    Right Side
+}{-1, 1}
+
 type Options struct {
     A  *Vect2D
     B  *Vect2D
@@ -40,7 +47,7 @@ type Vect struct {
 }
 
 //New create a new Vector
-func NewVect(opts *Options) Vect {
+func NewVect(opts *Options) *Vect {
     a := &Vect2D{0.0, 0.0}
     b := &Vect2D{0.0, 0.0}
     v := &Vect2D{0.0, 0.0}
@@ -84,7 +91,12 @@ func NewVect(opts *Options) Vect {
         b[x], b[y] = a[x], a[y]
         m, d = 0.0, 0.0
     }
-    return Vect{a: a, b: b, m: m, d: d, at: at, bt: bt, v: v}
+    return &Vect{
+        a: a, b: b,
+        m: m, d: d,
+        at: at, bt: bt,
+        v: v,
+    }
 }
 
 
@@ -129,7 +141,7 @@ func (v *Vect) Dt() float64 {
 }
 
 //SideOfPt computes the relation of a point to a vector
-func (v *Vect) SideOfPt(pnt *Vect2D) string {
+func (v *Vect) SideOfPt(pnt *Vect2D) Side {
     ax, ay := v.a[x], v.a[y]
     bx, by := v.b[x], v.b[y]
     cx, cy := pnt[x], pnt[y]
@@ -139,13 +151,13 @@ func (v *Vect) SideOfPt(pnt *Vect2D) string {
         {bx - cx, by - cy},
     }
     if Sign(Det2(mat)) > 0 {
-        return "left"
+        return Sided.Left
     }
-    return "right"
+    return Sided.Right
 }
 
 //SEDvect computes the Synchronized Euclidean Distance - Vector
-func (v *Vect) SEDVector(pnt *Vect2D, t float64) Vect {
+func (v *Vect) SEDVector(pnt *Vect2D, t float64) *Vect {
     m := (v.m / v.Dt()) * (t - v.at)
     vb := v.Extvect(m, 0.0, false)
     opts := &Options{A:pnt, B:vb.b}
@@ -153,35 +165,33 @@ func (v *Vect) SEDVector(pnt *Vect2D, t float64) Vect {
 }
 
 //Extvect extends vector from the from end (from_end is true) else from begin of vector
-func (v *Vect)  Extvect(mag, angl float64, from_end bool) Vect {
+func (v *Vect)  Extvect(magnitude, angle float64, from_end bool) *Vect {
     //from a of v back direction innitiates as fwd v direction anticlockwise
-    backdir := v.d
+    //bβ - back bearing
+    //fβ - forward bearing
+    bβ := v.d
     a := v.a
     if from_end {
-        if v.d >= π {
-            backdir = v.d - π
-        }else {
-            backdir = v.d + π
-        }
+        bβ = v.d + π
         a = v.b
     }
-    fwddir := backdir + angl
-    if fwddir > τ {
-        fwddir = fwddir - τ
+    fβ := bβ + angle
+    if fβ > τ {
+        fβ -= τ
     }
 
     opts := &Options{
         A : a,
-        M : &mag,
-        D : &fwddir,
+        M : &magnitude,
+        D : &fβ,
     }
     return NewVect(opts)
 }
 
 //Deflect_vector computes vector deflection given deflection angle and
 // side of vector to deflect from (from_end)
-func (v *Vect) DeflectVector(mag, deflangl float64, from_end bool) Vect {
-    angl := π - deflangl
+func (v *Vect) DeflectVector(mag, defl_angle float64, from_end bool) *Vect {
+    angl := π - defl_angle
     return v.Extvect(mag, angl, from_end)
 }
 
@@ -235,11 +245,6 @@ func (v *Vect) Dist2Pt(pnt *Vect2D) float64 {
 
 
 
-//is slice empty
-func is_empty(s []float64) bool {
-    return len(s) == 0
-}
-
 //Is point empty.
 func is_zero(vect *Vect2D) bool {
     b := true
@@ -271,7 +276,7 @@ func init_vect2d(a, v *Vect2D) {
 func Dir(x, y float64) float64 {
     d := math.Atan2(y, x)
     if d < 0 {
-        d += 2 * math.Pi
+        d += Tau
     }
     return d
 }
