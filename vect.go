@@ -2,6 +2,7 @@ package vect
 
 import (
     . "github.com/intdxdt/simplex/util/math"
+    . "github.com/intdxdt/simplex/geom/point"
     "math"
 )
 
@@ -27,30 +28,30 @@ var Sided = struct {
 }{-1, 1}
 
 type Options struct {
-    A  *Vect2D
-    B  *Vect2D
+    A  *Point
+    B  *Point
     M  *float64
     D  *float64
     At *float64
     Bt *float64
-    V  *Vect2D
+    V  *Point
 }
 //vector type
 type Vect struct {
-    a  *Vect2D
-    b  *Vect2D
+    a  *Point
+    b  *Point
     m  float64
     d  float64
     at float64
     bt float64
-    v  *Vect2D
+    v  *Point
 }
 
 //New create a new Vector
 func NewVect(opts *Options) *Vect {
-    a := &Vect2D{0.0, 0.0}
-    b := &Vect2D{0.0, 0.0}
-    v := &Vect2D{0.0, 0.0}
+    a := NewPointXY(0.0, 0.0)
+    b := NewPointXY(0.0, 0.0)
+    v := NewPointXY(0.0, 0.0)
     var m, d, at, bt float64
 
     init_vect2d(opts.A, a)
@@ -64,26 +65,26 @@ func NewVect(opts *Options) *Vect {
 
     //if not empty slice b , compute v
     if opts.B != nil {
-        v = Sub(b, a)
+        v = b.Sub(a)
     }
 
     if is_zero(v) && (m != 0) && (d != 0) {
-        v = Comp(m, d)
+        v = Component(m, d)
     }
 
     //d direction
     if !is_zero(v) && d == 0 {
-        d = Dir(v[x], v[y])
+        d = Direction(v[x], v[y])
     }
 
     //m magnitude
     if !is_zero(v) && m == 0 {
-        m = Mag(v[x], v[y])
+        m = v.Magnitude()
     }
 
     //compute b
     if !is_zero(v) && is_zero(b) {
-        b = Add(a, v)
+        b = a.Add(v)
     }
 
     //b is still empty
@@ -101,17 +102,17 @@ func NewVect(opts *Options) *Vect {
 
 
 //A gets begin point [x, y]
-func (v *Vect) A() Vect2D {
+func (v *Vect) A() Point {
     return *v.a
 }
 
 //B gets end point [x, y]
-func (v *Vect) B() Vect2D {
+func (v *Vect) B() Point {
     return *v.b
 }
 
 //V gets component vector
-func (v *Vect) V() Vect2D {
+func (v *Vect) V() Point {
     return *v.v
 }
 
@@ -141,7 +142,7 @@ func (v *Vect) Dt() float64 {
 }
 
 //SideOfPt computes the relation of a point to a vector
-func (v *Vect) SideOfPt(pnt *Vect2D) Side {
+func (v *Vect) SideOfPt(pnt *Point) Side {
     ax, ay := v.a[x], v.a[y]
     bx, by := v.b[x], v.b[y]
     cx, cy := pnt[x], pnt[y]
@@ -157,7 +158,7 @@ func (v *Vect) SideOfPt(pnt *Vect2D) Side {
 }
 
 //SEDvect computes the Synchronized Euclidean Distance - Vector
-func (v *Vect) SEDVector(pnt *Vect2D, t float64) *Vect {
+func (v *Vect) SEDVector(pnt *Point, t float64) *Vect {
     m := (v.m / v.Dt()) * (t - v.at)
     vb := v.Extvect(m, 0.0, false)
     opts := &Options{A:pnt, B:vb.b}
@@ -201,14 +202,11 @@ func (v *Vect) DeflectVector(mag, defl_angle float64, from_end bool) *Vect {
 // if points outside the range of the vector the minimum distance
 // is not perperndicular to the vector
 // Ref: http://www.mappinghacks.com/code/PolyLineReduction/
-func (v *Vect) Dist2Pt(pnt *Vect2D) float64 {
+func (v *Vect) Dist2Pt(pnt *Point) float64 {
     precision := 12
-    opts := &Options{
-        A: v.a,
-        B : pnt,
-    }
+    opts := &Options{A: v.a, B : pnt, }
     u := NewVect(opts)
-    dist_uv := Proj(u.v, v.v)
+    dist_uv := Project(u.v, v.v)
 
     rstate := false
     result := 0.0
@@ -218,10 +216,10 @@ func (v *Vect) Dist2Pt(pnt *Vect2D) float64 {
         result = u.m
         rstate = true
     }else {
-        negv := Neg(v.v)
-        negv_pnt := Add(negv, u.v)
-        if Proj(negv_pnt, negv) < 0.0 {
-            result = Mag(negv_pnt[x], negv_pnt[y])
+        negv := v.v.Neg()
+        negv_pnt := negv.Add(u.v)
+        if Project(negv_pnt, negv) < 0.0 {
+            result = negv_pnt.Magnitude()
             rstate = true
         }
     }
@@ -246,7 +244,7 @@ func (v *Vect) Dist2Pt(pnt *Vect2D) float64 {
 
 
 //Is point empty.
-func is_zero(vect *Vect2D) bool {
+func is_zero(vect *Point) bool {
     b := true
     v := *vect
     for _, v := range v {
@@ -264,16 +262,14 @@ func init_val(a  *float64, v *float64) {
 }
 
 //init_vect2d
-func init_vect2d(a, v *Vect2D) {
+func init_vect2d(a, v *Point) {
     if a != nil {
         *v = *a
-    } else {
-        *v = Vect2D{0.0, 0.0}
     }
 }
 
 //Dir computes direction in radians - counter clockwise from x-axis.
-func Dir(x, y float64) float64 {
+func Direction(x, y float64) float64 {
     d := math.Atan2(y, x)
     if d < 0 {
         d += Tau
@@ -282,7 +278,7 @@ func Dir(x, y float64) float64 {
 }
 
 //Revdir computes the reversed direction from a foward direction
-func Revdir(d float64) float64 {
+func ReverseDirection(d float64) float64 {
     if d < π {
         return d + π
     }
@@ -290,95 +286,44 @@ func Revdir(d float64) float64 {
 }
 
 //Unit vector
-func Unit(p *Vect2D) *Vect2D {
-    m := Mag(p[x], p[y])
-    res := &Vect2D{0, 0}
+func Unit(p *Point) *Point {
+    m := p.Magnitude()
+    res := &Point{0, 0}
     for i, v := range p {
         res[i] = v / m
     }
     return res
 }
 //Project vector u on v
-func Proj(u, onv *Vect2D) float64 {
+func Project(u, onv *Point) float64 {
     return Dot(u, Unit(onv))
 }
 
-func AngleAtPt(atp1, p2, p3 *Vect2D) float64 {
-    da := Dist(atp1, p2)
-    db := Dist(atp1, p3)
-    dc := Dist(p2, p3)
+func AngleAtPoint(atp1, p2, p3 *Point) float64 {
+    da := atp1.Distance(p2)
+    db := atp1.Distance(p3)
+    dc := p2.Distance(p3)
     // keep product units small to avoid overflow
-    return math.Acos(((da / db) * 0.5) + ((db / da) * 0.5) - ((dc / db) * (dc / da) * 0.5))
+    return math.Acos(
+        ((da / db) * 0.5) +
+        ((db / da) * 0.5) -
+        ((dc / db) * (dc / da) * 0.5))
 }
 
-func Deflect(b0, b1 float64) float64 {
-    a := b1 - Revdir(b0)
+func DeflectionAngle(bearing1, bearing2 float64) float64 {
+    a := bearing2 - ReverseDirection(bearing1)
     if a < 0.0 {
         a = a + τ
     }
     return π - a
 }
 
-//Vector magnitude
-func Mag(dx, dy float64) float64 {
-    return math.Hypot(dx, dy)
-}
-
-//direct squred distance given dx, dy , may overflow or underflow
-func Mag2(dx, dy float64) float64 {
-    return dx * dx + dy * dy
-}
-
-//Distance between two points , uses internal math.Hypot for overflow and underflow
-func Dist(va, vb *Vect2D) float64 {
-    a, b := *va, *vb
-    return Mag(a[x] - b[x], a[y] - b[y])
-}
-
-//Distance squared , direct squred distance between two points , may overflow or underflow
-func Dist2(va, vb *Vect2D) float64 {
-    a, b := *va, *vb
-    return Mag2(a[x] - b[x], a[y] - b[y])
-}
-
 //Component vector
-func Comp(m, d float64) *Vect2D {
-    return &Vect2D{m * math.Cos(d), m * math.Sin(d)}
+func Component(m, d float64) *Point {
+    return NewPointXY(m * math.Cos(d), m * math.Sin(d))
 }
 
 //vector dot product
-func Dot(va, vb *Vect2D) float64 {
-    sum := 0.0
-    a, b := *va, *vb
-    sum += a[i] * b[i]
-    sum += a[j] * b[j]
-    return sum
-}
-
-//negate point
-func Neg(v *Vect2D) *Vect2D {
-    var nv Vect2D
-    for i, a := range *v {
-        nv[i] = -a
-    }
-    return &nv
-}
-
-//Multiply k by point
-func Mult(k float64, vect *Vect2D) *Vect2D {
-    var va Vect2D
-    for i, v := range vect {
-        va[i] = k * v
-    }
-    return &va
-}
-
-//Subtract two points{Vect2D}.
-func Sub(va, vb *Vect2D) *Vect2D {
-    return &Vect2D{va[x] - vb[x], va[y] - vb[y]}
-}
-
-//Add two points{Vect2D}.
-func Add(a, b *Vect2D) *Vect2D {
-    return &Vect2D{a[x] + b[x], a[y] + b[y]}
+func Dot(a, b *Point) float64 {
+    return (a[i] * b[i]) + (a[j] * b[j])
 }

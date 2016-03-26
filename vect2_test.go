@@ -2,31 +2,32 @@ package vect
 
 import (
     . "github.com/intdxdt/simplex/util/math"
+    . "github.com/intdxdt/simplex/geom/point"
     . "github.com/franela/goblin"
     "testing"
 )
 
-var A2 = &Vect2D{0.88682, -1.06102}
-var B2 = &Vect2D{3.5, 1}
-var C2 = &Vect2D{-3, 1}
-var D2 = &Vect2D{-1.5, -3}
+var A2 = &Point{0.88682, -1.06102}
+var B2 = &Point{3.5, 1}
+var C2 = &Point{-3, 1}
+var D2 = &Point{-1.5, -3}
 
 var m = 25.0
 var dir = Deg2rad(165.0)
-var va_opts = &Options{A: &Vect2D{0, 0}, M: &m, D: &dir}
+var va_opts = &Options{A: &Point{0, 0}, M: &m, D: &dir}
 var va = NewVect(va_opts)
-var va_b = Vect2D{-24.148145657226706, 6.470476127563026}
+var va_b = Point{-24.148145657226706, 6.470476127563026}
 
 //Test Init Vector
 func TestDistToVect(t *testing.T) {
     g := Goblin(t)
     g.Describe("Vector - Dist2Vect", func() {
         g.It("should test distance vector", func() {
-            a := &Vect2D{16.82295, 10.44635}
-            b := &Vect2D{28.99656, 15.76452}
-            on_ab := &Vect2D{25.32, 14.16}
+            a := &Point{16.82295, 10.44635}
+            b := &Point{28.99656, 15.76452}
+            on_ab := &Point{25.32, 14.16}
 
-            tpoints := []*Vect2D{
+            tpoints := []*Point{
                 {30., 0.},
                 {15.78786, 25.26468},
                 {-2.61504, -3.09018},
@@ -55,10 +56,10 @@ func TestSideOfVect(t *testing.T) {
     g := Goblin(t)
     g.Describe("Vector Sidedness", func() {
         g.It("should test side of point to vector", func() {
-            k := &Vect2D{-0.887, -1.6128}
-            u := &Vect2D{4.55309, 1.42996}
+            k := &Point{-0.887, -1.6128}
+            u := &Point{4.55309, 1.42996}
 
-            testpoints := []*Vect2D{
+            testpoints := []*Point{
                 {2, 2}, {0, 2}, {0, -2}, {2, -2}, {0, 0}, {2, 0}, u, k,
             }
 
@@ -70,7 +71,7 @@ func TestSideOfVect(t *testing.T) {
             for i, pnt := range testpoints {
                 sides[i] = v.SideOfPt(pnt)
             }
-            g.Assert(Sided.Left).Equal(v.SideOfPt(&Vect2D{2, 2}))
+            g.Assert(Sided.Left).Equal(v.SideOfPt(&Point{2, 2}))
 
             side_out := []Side{
                 left, left, right, right, left,
@@ -93,11 +94,11 @@ func TestSEDVect(t *testing.T) {
             a := &Vect3D{10, 150, 6.5}
             e := &Vect3D{280, 280, 12.8}
             i := &Vect3D{185, 155, 8.6}
-            ai := &Vect2D{i[x], i[y]}
+            ai := &Point{i[x], i[y]}
 
             v := NewVect(&Options{
-                A   : &Vect2D{a[x], a[y]},
-                B   : &Vect2D{e[x], e[y]},
+                A   : &Point{a[x], a[y]},
+                B   : &Point{e[x], e[y]},
                 At  : &a[2],
                 Bt  : &e[2],
             })
