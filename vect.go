@@ -49,9 +49,9 @@ type Vect struct {
 
 //New create a new Vector
 func NewVect(opts *Options) *Vect {
-    a := NewPointXY(0.0, 0.0)
-    b := NewPointXY(0.0, 0.0)
-    v := NewPointXY(0.0, 0.0)
+    a := NewPointXY(0, 0)
+    b := NewPointXY(0, 0)
+    v := NewPointXY(0, 0)
     var m, d, at, bt float64
 
     init_vect2d(opts.A, a)
@@ -68,27 +68,27 @@ func NewVect(opts *Options) *Vect {
         v = b.Sub(a)
     }
 
-    if is_zero(v) && (m != 0) && (d != 0) {
+    if v.IsZero() && (m != 0) && (d != 0) {
         v = Component(m, d)
     }
 
     //d direction
-    if !is_zero(v) && d == 0 {
+    if !(v.IsZero()) && d == 0 {
         d = Direction(v[x], v[y])
     }
 
     //m magnitude
-    if !is_zero(v) && m == 0 {
+    if !(v.IsZero()) && m == 0 {
         m = v.Magnitude()
     }
 
     //compute b
-    if !is_zero(v) && is_zero(b) {
+    if !(v.IsZero()) && b.IsZero() {
         b = a.Add(v)
     }
 
     //b is still empty
-    if is_zero(b) {
+    if b.IsZero() {
         b[x], b[y] = a[x], a[y]
         m, d = 0.0, 0.0
     }
@@ -241,18 +241,11 @@ func (v *Vect) Dist2Pt(pnt *Point) float64 {
     return result
 }
 
-
-
-//Is point empty.
-func is_zero(vect *Point) bool {
-    b := true
-    v := *vect
-    for _, v := range v {
-        b = (b && (v == 0.0))
-    }
-    return b
-}
-
+//Distance to Point
+//func (v *Vect) DistanceToPoint (pnt *Point) float64 {
+//    seg := &Segment{A: v.a,  B: v.b}
+//    return seg.DistanceToPoint(pnt)
+//}
 
 //initval - initlialize values as numbers
 func init_val(a  *float64, v *float64) {
@@ -285,29 +278,9 @@ func ReverseDirection(d float64) float64 {
     return d - π
 }
 
-//Unit vector
-func Unit(p *Point) *Point {
-    m := p.Magnitude()
-    res := &Point{0, 0}
-    for i, v := range p {
-        res[i] = v / m
-    }
-    return res
-}
 //Project vector u on v
 func Project(u, onv *Point) float64 {
-    return Dot(u, Unit(onv))
-}
-
-func AngleAtPoint(atp1, p2, p3 *Point) float64 {
-    da := atp1.Distance(p2)
-    db := atp1.Distance(p3)
-    dc := p2.Distance(p3)
-    // keep product units small to avoid overflow
-    return math.Acos(
-        ((da / db) * 0.5) +
-        ((db / da) * 0.5) -
-        ((dc / db) * (dc / da) * 0.5))
+    return u.DotProduct(onv.UnitVector())
 }
 
 func DeflectionAngle(bearing1, bearing2 float64) float64 {
@@ -321,9 +294,4 @@ func DeflectionAngle(bearing1, bearing2 float64) float64 {
 //Component vector
 func Component(m, d float64) *Point {
     return NewPointXY(m * math.Cos(d), m * math.Sin(d))
-}
-
-//vector dot product
-func Dot(a, b *Point) float64 {
-    return (a[i] * b[i]) + (a[j] * b[j])
 }

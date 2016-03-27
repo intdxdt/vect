@@ -136,8 +136,8 @@ func TestExtVect(t *testing.T) {
             g.Assert(Round(vd.d, prec)).Equal(
                 Round(Deg2rad(243.43494882292202), prec),
             )
-            g.Assert( va.a[0]).Equal( 0.)
-            g.Assert( vc.a[0]).Equal( vd.a[0])
+            g.Assert(va.a[0]).Equal(0.)
+            g.Assert(vc.a[0]).Equal(vd.a[0])
             g.Assert(Round(vdb.m, 4)).Equal(
                 Round(6.4031242374328485, 4),
             )
@@ -148,11 +148,11 @@ func TestExtVect(t *testing.T) {
             vo := vdb.Extvect(3.64005494464026, Deg2rad(180 + deflangle), true)
             vo_defl := vdb.DeflectVector(3.64005494464026, Deg2rad(-deflangle), true)
             // , "compare deflection and extending"
-            g.Assert (vo.b).Eql(vo_defl.b)
+            g.Assert(vo.b).Eql(vo_defl.b)
             // "vo by extending vdb by angle to origin"
-            g.Assert (Round(vo.b[0], prec)).Equal( 0.0)
+            g.Assert(Round(vo.b[0], prec)).Equal(0.0)
             // "vo by extending vdb by angle to origin"
-            g.Assert (Round(vo.b[1], 4)).Equal(Round(0.0, prec))
+            g.Assert(Round(vo.b[1], 4)).Equal(Round(0.0, prec))
             deflangle_B := 141.34019174590992
             inclangle_D := 71.89623696549336
             // extend to c from end
@@ -162,19 +162,19 @@ func TestExtVect(t *testing.T) {
             // deflect to c from begin
             vdeflC_fromD := vdb.DeflectVector(4.272001872658765, Deg2rad(180 - inclangle_D), false)
             // "comparing extend and deflect from begin point D"
-            g.Assert (vextC_fromD.b).Eql(vdeflC_fromD.b)
+            g.Assert(vextC_fromD.b).Eql(vdeflC_fromD.b)
             // "vextc from B and from D : extending vdb by angle to C"
-            g.Assert (Round(vextC_fromD.b[0], prec)).Equal(Round(vextc.b[0], prec))
+            g.Assert(Round(vextC_fromD.b[0], prec)).Equal(Round(vextc.b[0], prec))
             // "vextc from B and from D : extending vdb by angle to C"
-            g.Assert (Round(vextC_fromD.b[1], prec)).Equal(Round(vextc.b[1], prec))
+            g.Assert(Round(vextC_fromD.b[1], prec)).Equal(Round(vextc.b[1], prec))
             // "vextc by extending vdb by angle to C"
-            g.Assert (Round(vextc.b[0], prec)).Equal( C[0])
+            g.Assert(Round(vextc.b[0], prec)).Equal(C[0])
             // "vextc by extending vdb by angle to C"
-            g.Assert (Round(vextc.b[1], 4)).Equal(C[1])
+            g.Assert(Round(vextc.b[1], 4)).Equal(C[1])
             // "vextc with magnitudie extension from vdb C"
-            g.Assert (Round(vextc.v[0], prec)).Equal(-vextc.m)
+            g.Assert(Round(vextc.v[0], prec)).Equal(-vextc.m)
             // "vextc horizontal vector test:  extension from vdb C"
-            g.Assert (Round(vextc.v[1], prec)).Equal( 0.)
+            g.Assert(Round(vextc.v[1], prec)).Equal(0.)
         })
     })
 
@@ -192,10 +192,10 @@ func TestVectDirMag(t *testing.T) {
             g.Assert(Round(va.b[1], prec)).Equal(
                 Round(va_b[1], prec),
             )
-            g.Assert( 25.).Equal(va.m)
-            g.Assert( Deg2rad(165)).Equal( va.d)
-            g.Assert( va.a[0]).Equal(0.0)
-            g.Assert( va.a[1]).Equal(0.0)
+            g.Assert(25.).Equal(va.m)
+            g.Assert(Deg2rad(165)).Equal(va.d)
+            g.Assert(va.a[0]).Equal(0.0)
+            g.Assert(va.a[1]).Equal(0.0)
 
             // "endpoint should be same as vector: 0 "
             g.Assert(Round(va.b[0], prec)).Equal(Round(va.v[0], prec), )
@@ -203,6 +203,5 @@ func TestVectDirMag(t *testing.T) {
             g.Assert(Round(va.b[1], prec)).Equal(Round(va.v[1], prec), )
         })
     })
-
 
 }

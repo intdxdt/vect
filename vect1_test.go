@@ -200,50 +200,6 @@ func TestDeflection(t *testing.T) {
 
 }
 
-func TestAngleAtPnt(t *testing.T) {
-    g := Goblin(t)
-    g.Describe("Vector - Angle at Point", func() {
-        g.It("should test angle formed at point by vector", func() {
-
-            a := &Point{-1.28, 0.74}
-            b := &Point{1.9, 4.2}
-            c := &Point{3.16, -0.84}
-
-            v := NewVect(&Options{A: b, B: c})
-            g.Assert(Round(AngleAtPoint(a, b, c), 8)).Equal(Round(1.1694239325184717, 8), )
-            g.Assert(Round(AngleAtPoint(a, v.a, v.b), 8)).Equal(Round(1.1694239325184717, 8), )
-            g.Assert(Round(AngleAtPoint(b, a, c), 8)).Equal(Round(0.9882331199311394, 8), )
-        })
-    })
-
-}
-
-func TestUnit(t *testing.T) {
-    g := Goblin(t)
-    g.Describe("Vector - Unit", func() {
-        g.It("should test unit vector", func() {
-            v := &Point{-3, 2}
-            unit_v := Unit(v)
-            for i, v := range *unit_v {
-                (*unit_v)[i] = Round(v, 6)
-            }
-            g.Assert(unit_v).Equal(&Point{-0.83205, 0.5547})
-        })
-    })
-
-}
-
-//dot perform dot in 2d even when 3d coords are passed
-func TestDot(t *testing.T) {
-    g := Goblin(t)
-    g.Describe("Vector - Dot Product", func() {
-        g.It("should test dot product", func() {
-            dot_prod := Dot(&Point{1.2, -4.2}, &Point{1.2, -4.2})
-            g.Assert(19.08).Equal(Round(dot_prod, 8))
-        })
-    })
-
-}
 
 func TestProj(t *testing.T) {
     g := Goblin(t)
