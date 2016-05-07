@@ -1,8 +1,9 @@
 package vect
 
 import (
-    . "github.com/intdxdt/simplex/util/math"
-    . "github.com/intdxdt/simplex/geom"
+    . "simplex/util/math"
+    . "simplex/geom"
+    . "simplex/side"
     . "github.com/franela/goblin"
     "testing"
     "fmt"
@@ -69,21 +70,21 @@ func TestSideOfVect(t *testing.T) {
 
             v := NewVect(&Options{A: k, B: u})
 
-            left, right := Sided.Left, Sided.Right
+            left, right := NewSide().AsLeft(), NewSide().AsRight()
 
-            sides := make([]Side, len(testpoints))
+            sides := make([]*Side, len(testpoints))
             for i, pnt := range testpoints {
                 sides[i] = v.SideOfPt(pnt)
             }
-            g.Assert(Sided.Left).Equal(v.SideOfPt(&Point{2, 2}))
+            g.Assert(v.SideOfPt(&Point{2, 2}).IsLeft()).IsTrue()
 
-            side_out := []Side{
+            side_out := []*Side{
                 left, left, right, right, left,
                 right, right, right,
             }
 
             for i, _ := range side_out {
-                g.Assert(sides[i]).Equal(side_out[i])
+                g.Assert(sides[i]).Eql(side_out[i])
             }
         })
     })

@@ -1,8 +1,8 @@
 package vect
 
 import (
-    . "github.com/intdxdt/simplex/util/math"
-    . "github.com/intdxdt/simplex/geom"
+    . "simplex/util/math"
+    . "simplex/geom"
     . "github.com/franela/goblin"
     "testing"
     "math"

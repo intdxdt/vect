@@ -1,25 +1,17 @@
 package vect
 
 import (
-    . "github.com/intdxdt/simplex/util/math"
-    . "github.com/intdxdt/simplex/geom"
+    . "simplex/util/math"
+    . "simplex/geom"
+    . "simplex/side"
     "math"
 )
-
 
 const (
     x = iota
     y
     z
 )
-
-
-type Side int
-
-var Sided = struct {
-    Left  Side
-    Right Side
-}{-1, 1}
 
 type Options struct {
     A  *Point
@@ -44,9 +36,10 @@ type Vect struct {
 
 //New create a new Vector
 func NewVect(opts *Options) *Vect {
-    a := NewPointXY(0, 0)
-    b := NewPointXY(0, 0)
-    v := NewPointXY(0, 0)
+    a := NewPointXY(0.0, 0.0)
+    b := NewPointXY(math.NaN(), math.NaN())
+    v := NewPointXY(math.NaN(), math.NaN())
+
     var m, d, at, bt float64
 
     init_vect2d(opts.A, a)
@@ -63,30 +56,32 @@ func NewVect(opts *Options) *Vect {
         v = b.Sub(a)
     }
 
-    if v.IsZero() && (m != 0) && (d != 0) {
+    if v.IsNull() && (m != 0) && (d != 0) {
         v = Component(m, d)
     }
 
     //d direction
-    if !(v.IsZero()) && d == 0 {
+    if !(v.IsNull()) && d == 0 {
         d = Direction(v[x], v[y])
     }
 
     //m magnitude
-    if !(v.IsZero()) && m == 0 {
+    if !(v.IsNull()) && m == 0 {
         m = v.Magnitude()
     }
 
     //compute b
-    if !(v.IsZero()) && b.IsZero() {
+    if !(v.IsNull()) && b.IsNull() {
         b = a.Add(v)
     }
 
     //b is still empty
-    if b.IsZero() {
+    if b.IsNull() {
         b[x], b[y] = a[x], a[y]
         m, d = 0.0, 0.0
+        v = NewPointXY(0.0, 0.0)
     }
+
     return &Vect{
         a: a, b: b,
         m: m, d: d,
@@ -137,7 +132,7 @@ func (v *Vect) Dt() float64 {
 }
 
 //SideOfPt computes the relation of a point to a vector
-func (v *Vect) SideOfPt(pnt *Point) Side {
+func (v *Vect) SideOfPt(pnt *Point) *Side {
     ax, ay := v.a[x], v.a[y]
     bx, by := v.b[x], v.b[y]
     cx, cy := pnt[x], pnt[y]
@@ -147,9 +142,9 @@ func (v *Vect) SideOfPt(pnt *Point) Side {
         {bx - cx, by - cy},
     }
     if Sign(Det2(mat)) > 0 {
-        return Sided.Left
+        return NewSide().AsLeft()
     }
-    return Sided.Right
+    return NewSide().AsRight()
 }
 
 //SEDvect computes the Synchronized Euclidean Distance - Vector
@@ -210,7 +205,7 @@ func (v *Vect) DistanceToPoint(pnt *Point) float64 {
         // if negative
         result = u.m
         rstate = true
-    }else {
+    } else {
         negv := v.v.Neg()
         negv_pnt := negv.Add(u.v)
         if Project(negv_pnt, negv) < 0.0 {
@@ -246,8 +241,8 @@ func init_val(a  *float64, v *float64) {
 
 //init_vect2d
 func init_vect2d(a, v *Point) {
-    if a != nil {
-        *v = *a
+    if a != nil && !a.IsNull() {
+        v[x], v[y] = a[x], a[y]
     }
 }
 
@@ -272,7 +267,6 @@ func ReverseDirection(d float64) float64 {
 func Project(u, onv *Point) float64 {
     return u.DotProduct(onv.UnitVector())
 }
-
 
 func DeflectionAngle(bearing1, bearing2 float64) float64 {
     a := bearing2 - ReverseDirection(bearing1)
