@@ -2,23 +2,17 @@ package vect
 
 import (
     . "github.com/intdxdt/simplex/util/math"
-    . "github.com/intdxdt/simplex/geom/point"
+    . "github.com/intdxdt/simplex/geom"
     "math"
 )
 
-const π = Pi
-const τ = Tau
 
 const (
     x = iota
     y
     z
 )
-const (
-    i = iota
-    j
-    k
-)
+
 
 type Side int
 
@@ -36,6 +30,7 @@ type Options struct {
     Bt *float64
     V  *Point
 }
+
 //vector type
 type Vect struct {
     a  *Point
@@ -173,12 +168,12 @@ func (v *Vect)  Extvect(magnitude, angle float64, from_end bool) *Vect {
     bβ := v.d
     a := v.a
     if from_end {
-        bβ = v.d + π
+        bβ = v.d + Pi
         a = v.b
     }
     fβ := bβ + angle
-    if fβ > τ {
-        fβ -= τ
+    if fβ > Tau {
+        fβ -= Tau
     }
 
     opts := &Options{
@@ -192,7 +187,7 @@ func (v *Vect)  Extvect(magnitude, angle float64, from_end bool) *Vect {
 //Deflect_vector computes vector deflection given deflection angle and
 // side of vector to deflect from (from_end)
 func (v *Vect) DeflectVector(mag, defl_angle float64, from_end bool) *Vect {
-    angl := π - defl_angle
+    angl := Pi - defl_angle
     return v.Extvect(mag, angl, from_end)
 }
 
@@ -201,8 +196,8 @@ func (v *Vect) DeflectVector(mag, defl_angle float64, from_end bool) *Vect {
 // compute the minimum distance between point and vector
 // if points outside the range of the vector the minimum distance
 // is not perperndicular to the vector
-// Ref: http://www.mappinghacks.com/code/PolyLineReduction/
-func (v *Vect) Dist2Pt(pnt *Point) float64 {
+// modified @Ref: http://www.mappinghacks.com/code/PolyLineReduction/
+func (v *Vect) DistanceToPoint(pnt *Point) float64 {
     precision := 12
     opts := &Options{A: v.a, B : pnt, }
     u := NewVect(opts)
@@ -237,15 +232,10 @@ func (v *Vect) Dist2Pt(pnt *Point) float64 {
             result = h * math.Sqrt(1 - r * r)
         }
     }
-    // opposite distance to hypotenus
+    //opposite distance to hypotenus
     return result
 }
 
-//Distance to Point
-//func (v *Vect) DistanceToPoint (pnt *Point) float64 {
-//    seg := &Segment{A: v.a,  B: v.b}
-//    return seg.DistanceToPoint(pnt)
-//}
 
 //initval - initlialize values as numbers
 func init_val(a  *float64, v *float64) {
@@ -272,10 +262,10 @@ func Direction(x, y float64) float64 {
 
 //Revdir computes the reversed direction from a foward direction
 func ReverseDirection(d float64) float64 {
-    if d < π {
-        return d + π
+    if d < Pi {
+        return d + Pi
     }
-    return d - π
+    return d - Pi
 }
 
 //Project vector u on v
@@ -283,12 +273,13 @@ func Project(u, onv *Point) float64 {
     return u.DotProduct(onv.UnitVector())
 }
 
+
 func DeflectionAngle(bearing1, bearing2 float64) float64 {
     a := bearing2 - ReverseDirection(bearing1)
     if a < 0.0 {
-        a = a + τ
+        a = a + Tau
     }
-    return π - a
+    return Pi - a
 }
 
 //Component vector

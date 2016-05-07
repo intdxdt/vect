@@ -2,7 +2,7 @@ package vect
 
 import (
     . "github.com/intdxdt/simplex/util/math"
-    . "github.com/intdxdt/simplex/geom/point"
+    . "github.com/intdxdt/simplex/geom"
     . "github.com/franela/goblin"
     "testing"
     "math"
