@@ -1,8 +1,8 @@
 package main
 
 import (
-    . "github.com/intdxdt/simplex/geom"
-    . "github.com/intdxdt/simplex/vect"
+    . "simplex/geom"
+    . "simplex/vect"
     "fmt"
 )
 
