@@ -152,7 +152,7 @@ func (v *Vect) SideOfPt(pnt *Point) *Side {
 func (v *Vect) SEDVector(pnt *Point, t float64) *Vect {
     m := (v.m / v.Dt()) * (t - v.at)
     vb := v.Extvect(m, 0.0, false)
-    opts := &Options{A:pnt, B:vb.b}
+    opts := &Options{A:vb.b, B:pnt}
     return NewVect(opts)
 }
 
