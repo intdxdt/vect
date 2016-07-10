@@ -40,7 +40,7 @@ func NewVect(opts *Options) *Vect {
     b := NewPointXY(math.NaN(), math.NaN())
     v := NewPointXY(math.NaN(), math.NaN())
 
-    var m, d, at, bt float64
+    var m, d, at, bt = math.NaN(), math.NaN(), math.NaN(), math.NaN()
 
     init_vect2d(opts.A, a)
     init_vect2d(opts.B, b)
@@ -55,23 +55,23 @@ func NewVect(opts *Options) *Vect {
     if opts.B != nil {
         v = b.Sub(a)
     }
-
-    if v.IsNull() && (m != 0) && (d != 0) {
+    //compute v , given m & d
+    if v.IsNull() && !math.IsNaN(m) && !math.IsNaN(d) {
         v = Component(m, d)
     }
 
-    //d direction
-    if !(v.IsNull()) && d == 0 {
+    //compute d given v
+    if !v.IsNull() && math.IsNaN(d) {
         d = Direction(v[x], v[y])
     }
 
-    //m magnitude
-    if !(v.IsNull()) && m == 0 {
+    //compute m given v
+    if !v.IsNull() && math.IsNaN(m) {
         m = v.Magnitude()
     }
 
-    //compute b
-    if !(v.IsNull()) && b.IsNull() {
+    //compute b given v and a
+    if !v.IsNull() && b.IsNull() {
         b = a.Add(v)
     }
 
@@ -79,6 +79,7 @@ func NewVect(opts *Options) *Vect {
     if b.IsNull() {
         b[x], b[y] = a[x], a[y]
         m, d = 0.0, 0.0
+        at, bt = 0.0, 0.0
         v = NewPointXY(0.0, 0.0)
     }
 
