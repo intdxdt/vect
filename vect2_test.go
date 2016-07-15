@@ -6,7 +6,6 @@ import (
     . "simplex/side"
     . "github.com/franela/goblin"
     "testing"
-    "fmt"
 )
 
 var A2 = &Point{0.88682, -1.06102}
@@ -48,7 +47,6 @@ func TestDistToVect(t *testing.T) {
                 dists[i] = tvect.DistanceToPoint(tp)
                 dists2[i] = tvect.DistanceToPoint(tp)
             }
-            fmt.Println(dists2)
 
             for i, _ := range tpoints {
                 g.Assert(Round(dists[i], 2)).Equal(Round(t_dists[i], 2))

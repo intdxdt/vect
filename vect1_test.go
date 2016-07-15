@@ -21,11 +21,11 @@ func TestInitVector(t *testing.T) {
     g := Goblin(t)
     g.Describe("Test Init Vector", func() {
         v := NewVect(&Options{})
-        vals := []Point{v.A(), v.B(), v.V()}
+        vals := []*Point{v.A(), v.B(), v.V()}
         // assert equality
         g.It("should test zero vector", func() {
             for _, o := range vals {
-                g.Assert(o).Eql(Point{0, 0})
+                g.Assert(o).Eql(&Point{0, 0})
             }
             mdatbt := []float64{v.m, v.d, v.at, v.bt}
             for _, o := range mdatbt {
@@ -62,16 +62,16 @@ func Test_Neg(t *testing.T) {
 
             //test immutability
             va := v.A()
-            g.Assert(va).Eql(Point{a[x], a[y]})
+            g.Assert(va).Eql(&Point{a[x], a[y]})
             va[x], va[y] = 31, 33
             //should not affect vector
-            g.Assert(v.A()).Eql(Point{a[x], a[y]})
+            g.Assert(v.A()).Eql(&Point{a[x], a[y]})
 
             ve := v.B()
-            g.Assert(ve).Eql(Point{e[x], e[y]})
+            g.Assert(ve).Eql(&Point{e[x], e[y]})
             ve[x], ve[y] = 31, 33
             //should not affect vector
-            g.Assert(v.B()).Eql(Point{e[x], e[y]})
+            g.Assert(v.B()).Eql(&Point{e[x], e[y]})
         })
     })
 
@@ -113,9 +113,9 @@ func TestVect(t *testing.T) {
             g.Assert(Round(vk.b[y], 8)).Eql(4.0)
 
             g.Assert(v.a).Eql(vo.a)
-            g.Assert(v.A()).Eql(*vo.a)
+            g.Assert(v.A()).Eql(vo.a)
             g.Assert(v.b).Eql(vo.b)
-            g.Assert(v.B()).Eql(*vo.b)
+            g.Assert(v.B()).Eql(vo.b)
 
             g.Assert(v.m).Equal(vo.m)
             g.Assert(v.M()).Equal(vo.m)

@@ -93,18 +93,18 @@ func NewVect(opts *Options) *Vect {
 
 
 //A gets begin point [x, y]
-func (v *Vect) A() Point {
-    return *v.a
+func (v *Vect) A() *Point {
+    return v.a.Clone()
 }
 
 //B gets end point [x, y]
-func (v *Vect) B() Point {
-    return *v.b
+func (v *Vect) B() *Point {
+    return v.b.Clone()
 }
 
 //V gets component vector
-func (v *Vect) V() Point {
-    return *v.v
+func (v *Vect) V() *Point {
+    return v.v.Clone()
 }
 
 //M gets magnitude of Vector
