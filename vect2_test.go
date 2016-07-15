@@ -48,7 +48,7 @@ func TestDistToVect(t *testing.T) {
                 dists2[i] = tvect.DistanceToPoint(tp)
             }
 
-            for i, _ := range tpoints {
+            for i := range tpoints {
                 g.Assert(Round(dists[i], 2)).Equal(Round(t_dists[i], 2))
             }
         })
@@ -81,7 +81,7 @@ func TestSideOfVect(t *testing.T) {
                 right, right, right,
             }
 
-            for i, _ := range side_out {
+            for i := range side_out {
                 g.Assert(sides[i]).Eql(side_out[i])
             }
         })
