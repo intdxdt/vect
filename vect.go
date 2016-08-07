@@ -156,7 +156,7 @@ func (v *Vect) SEDVector(pnt *Point, t float64) *Vect {
     return NewVect(opts)
 }
 
-//Extvect extends vector from the from end (from_end is true) else from begin of vector
+//Extvect extends vector from the from end or from begin of vector
 func (v *Vect)  Extvect(magnitude, angle float64, from_end bool) *Vect {
     //from a of v back direction innitiates as fwd v direction anticlockwise
     //bβ - back bearing

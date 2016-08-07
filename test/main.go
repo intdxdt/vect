@@ -1,60 +1,173 @@
 package main
 
 import (
-    . "simplex/geom"
-    . "simplex/vect"
-    "fmt"
+	"fmt"
+	"math"
+	. "simplex/geom"
+	. "simplex/vect"
+	. "simplex/util/math"
+	. "simplex/struct/item"
 )
 
 const (
-    x = iota
-    y
+	i = 0
+	j = 1
 )
 
+var A = NewPointXY(172.0, 224.0)
+var B = NewPointXY(180.0, 158.0)
+var C = NewPointXY(266.0, 46.0)
+var D = NewPointXY(374.0, 38.0)
+var E = NewPointXY(480.0, 100.0)
+var F = NewPointXY(500.0, 200.0)
+var G = NewPointXY(440.0, 300.0)
+var H = NewPointXY(340.0, 280.0)
+var I = NewPointXY(200.0, 240.0)
 
-// isLeft(): test if a point is Left|On|Right of an infinite line.
-//    Input:  three points a, b, and pt
-//    Return: >0 for pt left of the line through a and b
-//            =0 for pt on the line
-//            <0 for pt right of the line
-//    See: Algorithm 1 on Area of Triangles
-//side of point in relation to line segment formed by a and b
-func SideOf(a, b, pt *Point) int{
-    v := (b[x] - a[x]) * (pt[y] - a[y]) - (pt[x] - a[x]) * (b[y] - a[y]);
-    var side int;
-    if v > 0 {
-        side = -1
-    } else if v < 0 {
-        side = 1
-    }
-    return side
+type Vector struct {
+	X, Y float64
+}
+
+//New Vector
+func NewVector(a, b *Point) *Vector {
+	return &Vector{X:b[i] - a[i], Y:b[j] - a[j]}
+}
+func NewVectorXY(x, y float64) *Vector {
+	return &Vector{X:x, Y:y}
+}
+
+//Unit vector of point
+func (v *Vector) UnitVector() *Vector {
+	m := v.Magnitude()
+	return NewVectorXY(v.X / m, v.Y / m)
+}
+
+//Computes vector magnitude of pt as vector: x , y as components
+func (v *Vector) Magnitude() float64 {
+	return math.Hypot(v.X, v.Y)
+}
+
+//Dot Product of two points as vectors
+func (v *Vector) DotProduct(o *Vector) float64 {
+	return (v.X * o.X) + (v.Y * o.Y)
+}
+
+//2D cross product of OA and OB vectors,
+//i.e. z-component of their 3D cross product.
+//Returns a positive value, if OAB makes a counter-clockwise turn,
+//negative for clockwise turn, and zero if the points are collinear.
+func (v *Vector) CrossProduct(a, b *Vector) float64 {
+	return (b.X - a.X) * (v.Y - a.Y) - (b.Y - a.Y) * (v.X - a.X)
+}
+
+//Project vector u on v
+func (v *Vector) Project(u *Vector) float64 {
+	return u.DotProduct(v.UnitVector())
+}
+
+type Hull struct {
+	H []*Point
+}
+
+func NewHull(coords []*Point) *Hull {
+	return &Hull{H:coords}
+}
+
+func (self *Hull) Antipodal(i, j int) int {
+	var fn = self.chainIndexer(i, len(self.H) - 1)
+	var idxer = self.indexer(i, len(self.H) - 1)
+
+	var hv = NewVect(&Options{A: self.H[i], B: self.H[j], })
+	var start, end = fn(i), fn(i - 1)
+
+	var mid = (start + end) / 2
+	var pt, ptj = self.H[idxer(mid)], self.H[j]
+
+	var uvect = func(m int) *Vector{
+		return NewVector(ptj, self.H[m])
+	}
+
+	var angl = Deg2rad(90.0)
+	var side = hv.SideOfPt(pt)
+
+	if side.IsOn() {
+		return end
+	} else if side.IsLeft() {
+		angl = Deg2rad(270.0)
+	}
+
+	vv := hv.Extvect(1e3, angl, true)
+	fmt.Println(vv.V())
+	orth_v := self.orthvector(hv.D(), angl)
+
+
+	for {
+		if start == end {
+			mid = start
+			break
+		}
+		mid = (start + end) / 2
+
+		mi , mj := idxer(mid), idxer(mid + 1)
+		cur := self.othoffset(orth_v, uvect(mi))
+		next := self.othoffset(orth_v, uvect(mj))
+
+		if cur.Compare(next) == 0 {
+			mid += 1
+			break
+		} else {
+			if cur.Compare(next) < 0 {
+				start = mid + 1
+			} else if cur.Compare(next) > 0 {
+				end = mid
+			} else {
+				break
+			}
+		}
+	}
+	return idxer(mid)
+}
+
+func (self *Hull) othoffset(v, u *Vector) Float {
+	return Float(v.Project(u))
+}
+
+func (self *Hull)  orthvector(direction, angle float64) *Vector {
+	m := 1e3
+	bβ := direction + Pi //back bearing
+	fβ := bβ + angle //forward bearing
+	if fβ > Tau {
+		fβ -= Tau
+	}
+	return NewVectorXY(m * math.Cos(fβ), m * math.Sin(fβ))
+}
+
+func (self *Hull) indexer(origin, max int) func(k int) int {
+	return func(k int) int {
+		if k >= origin && k <= max {
+			return k
+		} else if k > max {
+			return k - max - 1
+		}
+		panic("index out of bounds")
+	}
+}
+
+func (self *Hull) chainIndexer(origin, max int) func(k int) int {
+	return func(k int) int {
+		if k >= origin && k <= max {
+			return k
+		} else if k < origin {
+			return max + k + 1
+		}
+		panic("index out of bounds")
+	}
 }
 
 func main() {
-    k := &Point{-0.887, -1.6128}
-    u := &Point{4.55309, 1.42996}
-    testpoints := []*Point{
-        {2, 2}, {0, 2}, {0, -2}, {2, -2}, {0, 0}, {2, 0}, u, k,
-    }
-    v := NewVect(&Options{A: k, B: u})
-
-    sides := make([]Side, len(testpoints))
-    sides2 := make([]int, len(testpoints))
-
-    for i, pnt := range testpoints {
-        sides[i] = v.SideOfPt(pnt)
-        sides2[i] = SideOf(k, u, pnt)
-    }
-    fmt.Println(sides)
-    fmt.Println(sides2)
-    fmt.Println(k)
-    fmt.Println(u)
-
-    fmt.Println(NewLineString([]*Point{k, u}))
-
-    //left, right, On := 'L', 'R', 'O'
-    //fmt.Println(left)
-    //fmt.Println(right)
-    //fmt.Println(On)
-
+	coords := []*Point{A, B, C, D, E, F, G, H, I}
+	fmt.Println(NewLineString(coords).WKT())
+	hull := NewHull(coords)
+	ext := hull.Antipodal(0,1)
+	fmt.Println(ext)
 }
