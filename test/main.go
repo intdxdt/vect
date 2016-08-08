@@ -9,10 +9,6 @@ import (
 	. "simplex/struct/item"
 )
 
-const (
-	i = 0
-	j = 1
-)
 
 var A = NewPointXY(172.0, 224.0)
 var B = NewPointXY(180.0, 158.0)
@@ -23,47 +19,6 @@ var F = NewPointXY(500.0, 200.0)
 var G = NewPointXY(440.0, 300.0)
 var H = NewPointXY(340.0, 280.0)
 var I = NewPointXY(200.0, 240.0)
-
-type Vector struct {
-	X, Y float64
-}
-
-//New Vector
-func NewVector(a, b *Point) *Vector {
-	return &Vector{X:b[i] - a[i], Y:b[j] - a[j]}
-}
-func NewVectorXY(x, y float64) *Vector {
-	return &Vector{X:x, Y:y}
-}
-
-//Unit vector of point
-func (v *Vector) UnitVector() *Vector {
-	m := v.Magnitude()
-	return NewVectorXY(v.X / m, v.Y / m)
-}
-
-//Computes vector magnitude of pt as vector: x , y as components
-func (v *Vector) Magnitude() float64 {
-	return math.Hypot(v.X, v.Y)
-}
-
-//Dot Product of two points as vectors
-func (v *Vector) DotProduct(o *Vector) float64 {
-	return (v.X * o.X) + (v.Y * o.Y)
-}
-
-//2D cross product of OA and OB vectors,
-//i.e. z-component of their 3D cross product.
-//Returns a positive value, if OAB makes a counter-clockwise turn,
-//negative for clockwise turn, and zero if the points are collinear.
-func (v *Vector) CrossProduct(a, b *Vector) float64 {
-	return (b.X - a.X) * (v.Y - a.Y) - (b.Y - a.Y) * (v.X - a.X)
-}
-
-//Project vector u on v
-func (v *Vector) Project(u *Vector) float64 {
-	return u.DotProduct(v.UnitVector())
-}
 
 type Hull struct {
 	H []*Point
@@ -83,7 +38,7 @@ func (self *Hull) Antipodal(i, j int) int {
 	var mid = (start + end) / 2
 	var pt, ptj = self.H[idxer(mid)], self.H[j]
 
-	var uvect = func(m int) *Vector{
+	var uvect = func(m int) *Vector {
 		return NewVector(ptj, self.H[m])
 	}
 
@@ -98,8 +53,7 @@ func (self *Hull) Antipodal(i, j int) int {
 
 	vv := hv.Extvect(1e3, angl, true)
 	fmt.Println(vv.V())
-	orth_v := self.orthvector(hv.D(), angl)
-
+	orth := self.orthvector(hv.D(), angl)
 
 	for {
 		if start == end {
@@ -108,9 +62,8 @@ func (self *Hull) Antipodal(i, j int) int {
 		}
 		mid = (start + end) / 2
 
-		mi , mj := idxer(mid), idxer(mid + 1)
-		cur := self.othoffset(orth_v, uvect(mi))
-		next := self.othoffset(orth_v, uvect(mj))
+		cur := self.othoffset(orth, uvect(idxer(mid)))
+		next := self.othoffset(orth, uvect(idxer(mid + 1)))
 
 		if cur.Compare(next) == 0 {
 			mid += 1
@@ -168,6 +121,9 @@ func main() {
 	coords := []*Point{A, B, C, D, E, F, G, H, I}
 	fmt.Println(NewLineString(coords).WKT())
 	hull := NewHull(coords)
-	ext := hull.Antipodal(0,1)
+	ext := hull.Antipodal(0, 1)
 	fmt.Println(ext)
+
+	v:= NewVector(A, A)
+	fmt.Println(v.UnitVector())
 }

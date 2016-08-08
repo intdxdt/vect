@@ -6,6 +6,7 @@ import (
     . "github.com/franela/goblin"
     "testing"
     "math"
+    "fmt"
 )
 
 const prec = 8
@@ -135,8 +136,8 @@ func TestVect(t *testing.T) {
 
             _a := &Point{a[0], a[1]}
             _e := &Point{e[0], e[1]}
-            d := _e.Sub(_a)
-            g.Assert(v.m).Equal(d.Magnitude())
+            d := _e.Magnitude(_a)
+            g.Assert(v.m).Equal(d)
         })
     })
 
@@ -205,6 +206,8 @@ func TestProj(t *testing.T) {
     g := Goblin(t)
     g.Describe("Vector - Project", func() {
         g.It("should test projection", func() {
+            fmt.Println("A-> ", A)
+            fmt.Println("B-> ", B)
             g.Assert(Round(Project(A, B), 5)).Equal(0.56121)
         })
     })
