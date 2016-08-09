@@ -5,7 +5,9 @@ import (
 	. "simplex/geom"
 	. "simplex/side"
 	"math"
+	"simplex/cart2d"
 )
+const precision = 12
 
 const (
 	x = iota
@@ -14,36 +16,35 @@ const (
 )
 
 type Options struct {
-	A  *Point
-	B  *Point
+	A  cart2d.Cart2D
+	B  cart2d.Cart2D
 	M  *float64
 	D  *float64
 	At *float64
 	Bt *float64
-	V  *Point
+	V  cart2d.Cart2D
 }
 
 //vector type
 type Vect struct {
 	a  *Point
 	b  *Point
-	m  float64
-	d  float64
 	at float64
 	bt float64
-	v  *Point
+	v  *Vector
+
 }
 
 //New create a new Vector
 func NewVect(opts *Options) *Vect {
 	a := NewPointXY(0.0, 0.0)
 	b := NewPointXY(math.NaN(), math.NaN())
-	v := NewPointXY(math.NaN(), math.NaN())
+	v := NewVectorXY(math.NaN(), math.NaN())
 
 	var m, d, at, bt = math.NaN(), math.NaN(), math.NaN(), math.NaN()
 
-	init_vect2d(opts.A, a)
-	init_vect2d(opts.B, b)
+	init_point2d(opts.A, a)
+	init_point2d(opts.B, b)
 	init_vect2d(opts.V, v)
 
 	init_val(opts.M, &m)
@@ -53,21 +54,11 @@ func NewVect(opts *Options) *Vect {
 
 	//if not empty slice b , compute v
 	if opts.B != nil {
-		v = b.Sub(a)
+		v = NewVector(a, b)
 	}
 	//compute v , given m & d
 	if v.IsNull() && !math.IsNaN(m) && !math.IsNaN(d) {
-		v = Component(m, d)
-	}
-
-	//compute d given v
-	if !v.IsNull() && math.IsNaN(d) {
-		d = Direction(v[x], v[y])
-	}
-
-	//compute m given v
-	if !v.IsNull() && math.IsNaN(m) {
-		m = math.Hypot(v[x], v[y])
+		v = NewVectorMagDir(m, d)
 	}
 
 	//compute b given v and a
@@ -78,19 +69,16 @@ func NewVect(opts *Options) *Vect {
 	//b is still empty
 	if b.IsNull() {
 		b[x], b[y] = a[x], a[y]
-		m, d = 0.0, 0.0
-		at, bt = 0.0, 0.0
-		v = NewPointXY(0.0, 0.0)
+		at, bt = a[z], a[z]
+		v = NewVectorXY(0.0, 0.0)
 	}
 
 	return &Vect{
 		a: a, b: b,
-		m: m, d: d,
 		at: at, bt: bt,
 		v: v,
 	}
 }
-
 
 //A gets begin point [x, y]
 func (v *Vect) A() *Point {
@@ -103,18 +91,28 @@ func (v *Vect) B() *Point {
 }
 
 //V gets component vector
-func (v *Vect) V() *Point {
+func (v *Vect) Vector() *Vector {
 	return v.v.Clone()
 }
 
 //M gets magnitude of Vector
-func (v *Vect) M() float64 {
-	return v.m
+func (v *Vect) Magnitude() float64 {
+	return v.v.Magnitude()
 }
 
-//D gets Direction of Vector
-func (v *Vect) D() float64 {
-	return v.d
+//Computes the Direction of Vector
+func (v *Vect) Direction() float64 {
+	return v.v.Direction()
+}
+
+//Reversed direction of vector direction
+func (v *Vect)  ReverseDirection() float64 {
+	return v.v.ReverseDirection()
+}
+
+//Computes the deflection angle from vector v to u
+func (v *Vect)  DeflectionAngle(u *Vect) float64 {
+	return v.v.DeflectionAngle(u.v)
 }
 
 //At gets  time at begin point :number
@@ -133,17 +131,22 @@ func (v *Vect) Dt() float64 {
 }
 
 //SideOfPt computes the relation of a point to a vector
-func (v *Vect) SideOfPt(pnt *Point) *Side {
-	ccw := v.a.CCW(v.b , pnt)
-	if ccw > 0 {
-		return NewSide().AsLeft()
+func (v *Vect) SideOf(pnt *Point) *Side {
+	s:= NewSide()
+	ccw := cart2d.CCW(v.a, v.b, pnt)
+	if FloatEqual(ccw, 0){
+		s.AsOn()
+	} else if ccw > 0 {
+		s.AsLeft()
+	} else {
+		s.AsRight()
 	}
-	return NewSide().AsRight()
+	return s
 }
 
 //SEDvect computes the Synchronized Euclidean Distance - Vector
 func (v *Vect) SEDVector(pnt *Point, t float64) *Vect {
-	m := (v.m / v.Dt()) * (t - v.at)
+	m := (v.Magnitude() / v.Dt()) * (t - v.at)
 	vb := v.Extvect(m, 0.0, false)
 	opts := &Options{A:vb.b, B:pnt}
 	return NewVect(opts)
@@ -154,10 +157,10 @@ func (v *Vect)  Extvect(magnitude, angle float64, from_end bool) *Vect {
 	//from a of v back direction innitiates as fwd v direction anticlockwise
 	//bβ - back bearing
 	//fβ - forward bearing
-	bβ := v.d
+	bβ := v.Direction()
 	a := v.a
 	if from_end {
-		bβ = v.d + Pi
+		bβ +=  Pi
 		a = v.b
 	}
 	fβ := bβ + angle
@@ -187,30 +190,30 @@ func (v *Vect) DeflectVector(mag, defl_angle float64, from_end bool) *Vect {
 // is not perperndicular to the vector
 // modified @Ref: http://www.mappinghacks.com/code/PolyLineReduction/
 func (v *Vect) DistanceToPoint(pnt *Point) float64 {
-	precision := 12
+
 	opts := &Options{A: v.a, B : pnt, }
 	u := NewVect(opts)
-	dist_uv := Project(u.v, v.v)
+	dist_uv := u.Project(v)
 
 	rstate := false
 	result := 0.0
 
 	if dist_uv < 0 {
 		// if negative
-		result = u.m
+		result = u.Magnitude()
 		rstate = true
 	} else {
 		negv := v.v.Neg()
 		negv_pnt := negv.Add(u.v)
-		if Project(negv_pnt, negv) < 0.0 {
-			result = negv_pnt.Magnitude(NewPointXY(0, 0))
+		if negv_pnt.Project(negv) < 0.0 {
+			result = negv_pnt.Magnitude()
 			rstate = true
 		}
 	}
 
 	if rstate == false {
 		// avoid floating point imprecision
-		h := Round(math.Abs(u.m), precision)
+		h := Round(math.Abs(u.Magnitude()), precision)
 		a := Round(math.Abs(dist_uv), precision)
 
 		if FloatEqual(h, 0.0) && FloatEqual(a, 0.0) {
@@ -225,6 +228,10 @@ func (v *Vect) DistanceToPoint(pnt *Point) float64 {
 	return result
 }
 
+//Project vector u on v
+func (u *Vect) Project(onv *Vect) float64 {
+	return cart2d.Project(u.v, onv.v)
+}
 
 //initval - initlialize values as numbers
 func init_val(a  *float64, v *float64) {
@@ -233,46 +240,15 @@ func init_val(a  *float64, v *float64) {
 	}
 }
 
-//init_vect2d
-func init_vect2d(a, v *Point) {
+//init_point2d
+func init_point2d(a cart2d.Cart2D, v *Point) {
 	if a != nil && !a.IsNull() {
-		v[x], v[y] = a[x], a[y]
+		v[x], v[y] = a.X(), a.Y()
 	}
 }
-
-//Dir computes direction in radians - counter clockwise from x-axis.
-func Direction(x, y float64) float64 {
-	d := math.Atan2(y, x)
-	if d < 0 {
-		d += Tau
+//init_vect2d
+func init_vect2d(a cart2d.Cart2D, v *Vector) {
+	if a != nil && !a.IsNull() {
+		v[x], v[y] = a.X(), a.Y()
 	}
-	return d
-}
-
-//Revdir computes the reversed direction from a foward direction
-func ReverseDirection(d float64) float64 {
-	if d < Pi {
-		return d + Pi
-	}
-	return d - Pi
-}
-
-//Project vector u on v
-func Project(u, onv *Point) float64 {
-	_u := NewVectorXY(u[x], u[y])
-	_onv := NewVectorXY(onv[x], onv[y])
-	return _u.DotProduct(_onv.UnitVector())
-}
-
-func DeflectionAngle(bearing1, bearing2 float64) float64 {
-	a := bearing2 - ReverseDirection(bearing1)
-	if a < 0.0 {
-		a = a + Tau
-	}
-	return Pi - a
-}
-
-//Component vector
-func Component(m, d float64) *Point {
-	return NewPointXY(m * math.Cos(d), m * math.Sin(d))
 }

@@ -43,7 +43,7 @@ func (self *Hull) Antipodal(i, j int) int {
 	}
 
 	var angl = Deg2rad(90.0)
-	var side = hv.SideOfPt(pt)
+	var side = hv.SideOf(pt)
 
 	if side.IsOn() {
 		return end
@@ -52,8 +52,8 @@ func (self *Hull) Antipodal(i, j int) int {
 	}
 
 	vv := hv.Extvect(1e3, angl, true)
-	fmt.Println(vv.V())
-	orth := self.orthvector(hv.D(), angl)
+	fmt.Println(vv.Vector())
+	orth := self.orthvector(hv.Direction(), angl)
 
 	for {
 		if start == end {

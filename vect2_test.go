@@ -68,17 +68,17 @@ func TestSideOfVect(t *testing.T) {
 
             v := NewVect(&Options{A: k, B: u})
 
-            left, right := NewSide().AsLeft(), NewSide().AsRight()
+            left, right, on := NewSide().AsLeft(), NewSide().AsRight(), NewSide().AsOn()
 
             sides := make([]*Side, len(testpoints))
             for i, pnt := range testpoints {
-                sides[i] = v.SideOfPt(pnt)
+                sides[i] = v.SideOf(pnt)
             }
-            g.Assert(v.SideOfPt(&Point{2, 2}).IsLeft()).IsTrue()
+            g.Assert(v.SideOf(&Point{2, 2}).IsLeft()).IsTrue()
 
             side_out := []*Side{
                 left, left, right, right, left,
-                right, right, right,
+                right, on, on,
             }
 
             for i := range side_out {
@@ -109,8 +109,8 @@ func TestSEDVect(t *testing.T) {
             sed_v := v.SEDVector(ai, i[2])
             sed_v2 := v.SEDVector(ai, i[2])
 
-            g.Assert(Round(sed_v.m, prec)).Equal(93.24400487)
-            g.Assert(Round(sed_v2.m, prec)).Equal(93.24400487)
+            g.Assert(Round(sed_v.Magnitude(), prec)).Equal(93.24400487)
+            g.Assert(Round(sed_v2.Magnitude(), prec)).Equal(93.24400487)
         })
     })
 
@@ -127,24 +127,24 @@ func TestExtVect(t *testing.T) {
             vd := NewVect(&Options{B: D2})
             vdb := NewVect(&Options{A: D2, B: B2})
 
-            g.Assert(Round(va.d, prec)).Equal(
+            g.Assert(Round(va.Direction(), prec)).Equal(
                 Round(Deg2rad(309.889497029295), prec),
             )
-            g.Assert(Round(vb.d, prec)).Equal(
+            g.Assert(Round(vb.Direction(), prec)).Equal(
                 Round(Deg2rad(15.945395900922854), prec),
             )
-            g.Assert(Round(vc.d, prec)).Equal(
+            g.Assert(Round(vc.Direction(), prec)).Equal(
                 Round(Deg2rad(161.565051177078), prec),
             )
-            g.Assert(Round(vd.d, prec)).Equal(
+            g.Assert(Round(vd.Direction(), prec)).Equal(
                 Round(Deg2rad(243.43494882292202), prec),
             )
             g.Assert( va.a[0]).Equal( 0.)
             g.Assert( vc.a[0]).Equal( vd.a[0])
-            g.Assert(Round(vdb.m, 4)).Equal(
+            g.Assert(Round(vdb.Magnitude(), 4)).Equal(
                 Round(6.4031242374328485, 4),
             )
-            g.Assert(Round(vdb.d, prec)).Equal(
+            g.Assert(Round(vdb.Direction(), prec)).Equal(
                 Round(Deg2rad(38.65980825409009), prec),
             )
             deflangle := 157.2855876468
@@ -175,7 +175,7 @@ func TestExtVect(t *testing.T) {
             // "vextc by extending vdb by angle to C"
             g.Assert (Round(vextc.b[1], 4)).Equal(C[1])
             // "vextc with magnitudie extension from vdb C"
-            g.Assert (Round(vextc.v[0], prec)).Equal(-vextc.m)
+            g.Assert (Round(vextc.v[0], prec)).Equal(-vextc.Magnitude())
             // "vextc horizontal vector test:  extension from vdb C"
             g.Assert (Round(vextc.v[1], prec)).Equal( 0.)
         })
@@ -195,8 +195,8 @@ func TestVectDirMag(t *testing.T) {
             g.Assert(Round(va.b[1], prec)).Equal(
                 Round(va_b[1], prec),
             )
-            g.Assert( 25.).Equal(va.m)
-            g.Assert( Deg2rad(165)).Equal( va.d)
+            g.Assert(FloatEqual(va.Magnitude(),  25.)).IsTrue()
+            g.Assert( Deg2rad(165)).Equal( va.Direction())
             g.Assert( va.a[0]).Equal(0.0)
             g.Assert( va.a[1]).Equal(0.0)
 
