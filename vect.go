@@ -32,7 +32,6 @@ type Vect struct {
 	at float64
 	bt float64
 	v  *Vector
-
 }
 
 //New create a new Vector
