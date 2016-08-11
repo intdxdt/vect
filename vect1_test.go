@@ -6,7 +6,6 @@ import (
 	. "github.com/franela/goblin"
 	"testing"
 	"math"
-	"fmt"
 )
 
 const prec = 8
@@ -207,12 +206,10 @@ func TestDeflection(t *testing.T) {
 
 func TestProj(t *testing.T) {
 	g := Goblin(t)
-	g.Describe("Vector - Project", func() {
+	g.Describe("vect - Project", func() {
 		g.It("should test projection", func() {
-			fmt.Println("A-> ", A)
-			fmt.Println("B-> ", B)
-			u := NewVectorXY(A.X(), A.Y())
-			v := NewVectorXY(B.X(), B.Y())
+			u := NewVect(&Options{A:NewPointXY(0, 0),  B:A})
+			v := NewVect(&Options{A:NewPointXY(0, 0),  B:B})
 			g.Assert(Round(u.Project(v), 5)).Equal(0.56121)
 		})
 	})

@@ -146,13 +146,13 @@ func (v *Vect) SideOf(pnt *Point) *Side {
 //SEDvect computes the Synchronized Euclidean Distance - Vector
 func (v *Vect) SEDVector(pnt *Point, t float64) *Vect {
 	m := (v.Magnitude() / v.Dt()) * (t - v.at)
-	vb := v.Extvect(m, 0.0, false)
+	vb := v.ExtendVect(m, 0.0, false)
 	opts := &Options{A:vb.b, B:pnt}
 	return NewVect(opts)
 }
 
 //Extvect extends vector from the from end or from begin of vector
-func (v *Vect)  Extvect(magnitude, angle float64, from_end bool) *Vect {
+func (v *Vect)  ExtendVect(magnitude, angle float64, from_end bool) *Vect {
 	cx, cy := cart2d.Extend(v.Vector(), magnitude, angle, from_end)
 	cv := NewVectorXY(cx, cy)
 	a  := v.a
@@ -175,48 +175,8 @@ func (v *Vect) DeflectVector(magnitude, defl_angle float64, from_end bool) *Vect
 }
 
 //Dist2Pt computes distance from a point to Vect
-// Minimum distance to vector from a point
-// compute the minimum distance between point and vector
-// if points outside the range of the vector the minimum distance
-// is not perperndicular to the vector
-// modified @Ref: http://www.mappinghacks.com/code/PolyLineReduction/
 func (v *Vect) DistanceToPoint(pnt *Point) float64 {
-
-	opts := &Options{A: v.a, B : pnt, }
-	u := NewVect(opts)
-	dist_uv := u.Project(v)
-
-	rstate := false
-	result := 0.0
-
-	if dist_uv < 0 {
-		// if negative
-		result = u.Magnitude()
-		rstate = true
-	} else {
-		negv := v.v.Neg()
-		negv_pnt := negv.Add(u.v)
-		if negv_pnt.Project(negv) < 0.0 {
-			result = negv_pnt.Magnitude()
-			rstate = true
-		}
-	}
-
-	if rstate == false {
-		// avoid floating point imprecision
-		h := Round(math.Abs(u.Magnitude()), precision)
-		a := Round(math.Abs(dist_uv), precision)
-
-		if FloatEqual(h, 0.0) && FloatEqual(a, 0.0) {
-			result = 0.0
-		} else {
-			r := Round(a / h, precision)
-			// to avoid numeric overflow
-			result = h * math.Sqrt(1 - r * r)
-		}
-	}
-	//opposite distance to hypotenus
-	return result
+	return cart2d.DistanceToPoint(v.a, v.b, pnt)
 }
 
 //Project vector u on v

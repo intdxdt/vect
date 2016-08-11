@@ -148,7 +148,7 @@ func TestExtVect(t *testing.T) {
                 Round(Deg2rad(38.65980825409009), prec),
             )
             deflangle := 157.2855876468
-            vo := vdb.Extvect(3.64005494464026, Deg2rad(180 + deflangle), true)
+            vo := vdb.ExtendVect(3.64005494464026, Deg2rad(180 + deflangle), true)
             vo_defl := vdb.DeflectVector(3.64005494464026, Deg2rad(-deflangle), true)
             // , "compare deflection and extending"
             g.Assert (vo.b).Eql(vo_defl.b)
@@ -159,9 +159,9 @@ func TestExtVect(t *testing.T) {
             deflangle_B := 141.34019174590992
             inclangle_D := 71.89623696549336
             // extend to c from end
-            vextc := vdb.Extvect(6.5, Deg2rad(180 + deflangle_B), true)
+            vextc := vdb.ExtendVect(6.5, Deg2rad(180 + deflangle_B), true)
             ////extend to c from begining
-            vextC_fromD := vdb.Extvect(4.272001872658765, Deg2rad(inclangle_D), false)
+            vextC_fromD := vdb.ExtendVect(4.272001872658765, Deg2rad(inclangle_D), false)
             // deflect to c from begin
             vdeflC_fromD := vdb.DeflectVector(4.272001872658765, Deg2rad(180 - inclangle_D), false)
             // "comparing extend and deflect from begin point D"
