@@ -153,33 +153,25 @@ func (v *Vect) SEDVector(pnt *Point, t float64) *Vect {
 
 //Extvect extends vector from the from end or from begin of vector
 func (v *Vect)  Extvect(magnitude, angle float64, from_end bool) *Vect {
-	//from a of v back direction innitiates as fwd v direction anticlockwise
-	//bβ - back bearing
-	//fβ - forward bearing
-	bβ := v.Direction()
-	a := v.a
+	cx, cy := cart2d.Extend(v.Vector(), magnitude, angle, from_end)
+	cv := NewVectorXY(cx, cy)
+	a  := v.a
 	if from_end {
-		bβ +=  Pi
 		a = v.b
 	}
-	fβ := bβ + angle
-	if fβ > Tau {
-		fβ -= Tau
-	}
-
-	opts := &Options{
-		A : a,
-		M : &magnitude,
-		D : &fβ,
-	}
-	return NewVect(opts)
+	return &Vect{a:a.Clone(), b: a.Add(cv), v:cv}
 }
 
 //Deflect_vector computes vector deflection given deflection angle and
 // side of vector to deflect from (from_end)
-func (v *Vect) DeflectVector(mag, defl_angle float64, from_end bool) *Vect {
-	angl := Pi - defl_angle
-	return v.Extvect(mag, angl, from_end)
+func (v *Vect) DeflectVector(magnitude, defl_angle float64, from_end bool) *Vect {
+	cx, cy:= cart2d.Deflect(v.Vector(), magnitude, defl_angle, from_end)
+	cv := NewVectorXY(cx, cy)
+	a  := v.a
+	if from_end {
+		a = v.b
+	}
+	return &Vect{a:a.Clone(), b: a.Add(cv), v:cv}
 }
 
 //Dist2Pt computes distance from a point to Vect
