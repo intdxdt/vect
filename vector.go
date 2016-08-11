@@ -4,6 +4,7 @@ import (
 	"math"
 	. "simplex/geom"
 	. "simplex/util/math"
+	. "simplex/side"
 	"simplex/cart2d"
 )
 //Vector Type
@@ -97,8 +98,17 @@ func (u *Vector) Project(v *Vector) float64 {
 //i.e. z-component of their 3D cross product.
 //Returns a positive value, if AB-->BC makes a counter-clockwise turn,
 //negative for clockwise turn, and zero if the points are collinear.
-func (ab *Vector) SideOf(ac *Vector) float64 {
-	return cart2d.CCWVector(ab, ac)
+func (ab *Vector) SideOf(ac *Vector) *Side {
+	s:= NewSide()
+	ccw := cart2d.CCWVector(ab, ac)
+	if FloatEqual(ccw, 0){
+		s.AsOn()
+	} else if ccw > 0 {
+		s.AsLeft()
+	} else {
+		s.AsRight()
+	}
+	return s
 }
 
 //Dir computes direction in radians - counter clockwise from x-axis.

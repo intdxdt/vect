@@ -47,9 +47,9 @@ func TestVector(t *testing.T) {
 				ad := NewVector(a, d)
 				ae := NewVector(a, e)
 
-				g.Assert(FloatEqual(ab.SideOf(ac), 0)).IsTrue()
-				g.Assert(ab.SideOf(ad) > 0).IsTrue()
-				g.Assert(ab.SideOf(ae) < 0).IsTrue()
+				g.Assert(ab.SideOf(ac).IsOn()).IsTrue()
+				g.Assert(ab.SideOf(ad).IsLeft()).IsTrue()
+				g.Assert(ab.SideOf(ae).IsRight()).IsTrue()
 			})
 		})
 
