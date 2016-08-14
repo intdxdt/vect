@@ -14,6 +14,7 @@ type Vector [2]float64
 func NewVector(a, b *Point) *Vector {
 	return &Vector{b[x] - a[x], b[y] - a[y]}
 }
+
 //Creates a new vector with component x and y
 func NewVectorXY(x, y float64) *Vector {
 	return &Vector{x, y}
@@ -31,13 +32,13 @@ func (v *Vector) Clone() *Vector {
 }
 
 //X gets the x compoent of vector
-func (self *Vector) X() float64 {
-	return self[x]
+func (v *Vector) X() float64 {
+	return v[x]
 }
 
 //Y gets the y component of vector
-func (self *Vector) Y() float64 {
-	return self[y]
+func (v *Vector) Y() float64 {
+	return v[y]
 }
 
 //Add creates a new point by adding to other point
@@ -46,8 +47,8 @@ func (v *Vector) Add(o *Vector) *Vector {
 }
 
 //Is a zero vector
-func (self *Vector) IsZero() bool {
-	return FloatEqual(self[x], 0.0) && FloatEqual(self[y], 0.0)
+func (v *Vector) IsZero() bool {
+	return FloatEqual(v[x], 0.0) && FloatEqual(v[y], 0.0)
 }
 
 //Sub creates a new point by adding to other point
@@ -127,8 +128,8 @@ func (v *Vector)  DeflectionAngle(u *Vector) float64 {
 }
 
 //Checks if vector has any component as NaN
-func (self *Vector) IsNull() bool {
-	return math.IsNaN(self[x]) || math.IsNaN(self[y])
+func (v *Vector) IsNull() bool {
+	return math.IsNaN(v[x]) || math.IsNaN(v[y])
 }
 
 
