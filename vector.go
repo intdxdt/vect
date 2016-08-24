@@ -101,7 +101,7 @@ func (u *Vector) Project(v *Vector) float64 {
 //negative for clockwise turn, and zero if the points are collinear.
 func (ab *Vector) SideOf(ac *Vector) *Side {
 	s:= NewSide()
-	ccw := cart2d.CCWVector(ab, ac)
+	ccw := cart2d.CrossProduct(ab, ac)
 	if FloatEqual(ccw, 0){
 		s.AsOn()
 	} else if ccw > 0 {
