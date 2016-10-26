@@ -28,7 +28,7 @@ func NewVectorMagDir(m, d float64) *Vector {
 
 //Clone Vector
 func (v *Vector) Clone() *Vector {
-	return &Vector{v[x] , v[y]}
+	return &Vector{v[x], v[y]}
 }
 
 //X gets the x compoent of vector
@@ -43,12 +43,13 @@ func (v *Vector) Y() float64 {
 
 //Add creates a new point by adding to other point
 func (v *Vector) Add(o *Vector) *Vector {
-	return &Vector{v[x] + o[x], v[y] + o[y]}
+	cx, cy := cart2d.Add(v, o)
+	return &Vector{cx, cy}
 }
 
 //Is a zero vector
 func (v *Vector) IsZero() bool {
-	return FloatEqual(v[x], 0.0) && FloatEqual(v[y], 0.0)
+	return cart2d.IsZero(v)
 }
 
 //Sub creates a new point by adding to other point
@@ -65,7 +66,7 @@ func (v *Vector) KProduct(k float64) *Vector {
 
 //Negate vector
 func (v *Vector) Neg() *Vector {
-	return v.KProduct( -1.0)
+	return v.KProduct(-1.0)
 }
 
 //Computes vector magnitude of pt as vector: x , y as components
@@ -97,12 +98,13 @@ func (u *Vector) Project(v *Vector) float64 {
 
 //2D cross product of AB and AC vectors,
 //i.e. z-component of their 3D cross product.
+//Computes A---B---C : location C is on Left , On , or Right of line AB
 //Returns a positive value, if AB-->BC makes a counter-clockwise turn,
 //negative for clockwise turn, and zero if the points are collinear.
 func (ab *Vector) SideOf(ac *Vector) *Side {
-	s:= NewSide()
+	s := NewSide()
 	ccw := cart2d.CrossProduct(ab, ac)
-	if FloatEqual(ccw, 0){
+	if FloatEqual(ccw, 0) {
 		s.AsOn()
 	} else if ccw > 0 {
 		s.AsLeft()
