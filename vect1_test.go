@@ -3,7 +3,7 @@ package vect
 import (
 	. "simplex/util/math"
 	. "simplex/geom"
-	. "github.com/franela/goblin"
+	"github.com/franela/goblin"
 	"testing"
 	"math"
 )
@@ -18,7 +18,7 @@ var C = &Point{-3, 1.0}
 
 //Test Init Vector
 func TestInitVector(t *testing.T) {
-	g := Goblin(t)
+	g := goblin.Goblin(t)
 	g.Describe("Test Init Vector", func() {
 		v := NewVect(&Options{})
 		g.It("should test zero vector", func() {
@@ -44,7 +44,7 @@ func TestInitVector(t *testing.T) {
 
 //Test Neg
 func Test_Neg(t *testing.T) {
-	g := Goblin(t)
+	g := goblin.Goblin(t)
 	g.Describe("Negate Vector", func() {
 		g.It("should test vector negation", func() {
 			a := []float64{10, 150, 6.5}
@@ -84,7 +84,7 @@ func Test_Neg(t *testing.T) {
 
 //Test Vect
 func TestVect(t *testing.T) {
-	g := Goblin(t)
+	g := goblin.Goblin(t)
 	g.Describe("Vector Construct", func() {
 		g.It("should test vector constructor", func() {
 			a := []float64{10, 150, 6.5}
@@ -148,7 +148,7 @@ func TestVect(t *testing.T) {
 }
 
 func TestDirection(t *testing.T) {
-	g := Goblin(t)
+	g := goblin.Goblin(t)
 	g.Describe("Vector Direction", func() {
 		g.It("should test vector direction", func() {
 			v := NewVect(&Options{
@@ -166,7 +166,7 @@ func TestDirection(t *testing.T) {
 }
 
 func TestReverseDirection(t *testing.T) {
-	g := Goblin(t)
+	g := goblin.Goblin(t)
 	g.Describe("Vector RevDirection", func() {
 		g.It("should test reverse vector direction", func() {
 			v := NewVect(&Options{
@@ -181,7 +181,7 @@ func TestReverseDirection(t *testing.T) {
 }
 
 func TestDeflection(t *testing.T) {
-	g := Goblin(t)
+	g := goblin.Goblin(t)
 	g.Describe("Vector Deflection", func() {
 		g.It("should test reverse vector direction", func() {
 			ln0 := []*Point{{0, 0}, {20, 30}}
@@ -205,7 +205,7 @@ func TestDeflection(t *testing.T) {
 }
 
 func TestProj(t *testing.T) {
-	g := Goblin(t)
+	g := goblin.Goblin(t)
 	g.Describe("vect - Project", func() {
 		g.It("should test projection", func() {
 			u := NewVect(&Options{A:NewPointXY(0, 0),  B:A})

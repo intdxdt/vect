@@ -2,16 +2,16 @@ package vect
 
 import (
 	"math"
-	. "simplex/geom"
-	. "simplex/util/math"
-	. "simplex/side"
+	"simplex/geom"
+	umath "simplex/util/math"
+	"simplex/side"
 	"simplex/cart2d"
 )
 //Vector Type
 type Vector [2]float64
 
 //New Vector given start and end point
-func NewVector(a, b *Point) *Vector {
+func NewVector(a, b *geom.Point) *Vector {
 	return &Vector{b[x] - a[x], b[y] - a[y]}
 }
 
@@ -49,7 +49,7 @@ func (v *Vector) Add(o *Vector) *Vector {
 
 //Is a zero vector
 func (v *Vector) IsZero() bool {
-	return cart2d.IsZero(v)
+	return umath.FloatEqual(v[x], 0.0) && umath.FloatEqual(v[y], 0.0)
 }
 
 //Sub creates a new point by adding to other point
@@ -101,10 +101,10 @@ func (u *Vector) Project(v *Vector) float64 {
 //Computes A---B---C : location C is on Left , On , or Right of line AB
 //Returns a positive value, if AB-->BC makes a counter-clockwise turn,
 //negative for clockwise turn, and zero if the points are collinear.
-func (ab *Vector) SideOf(ac *Vector) *Side {
-	s := NewSide()
+func (ab *Vector) SideOf(ac *Vector) *side.Side {
+	s:= side.NewSide()
 	ccw := cart2d.CrossProduct(ab, ac)
-	if FloatEqual(ccw, 0) {
+	if umath.FloatEqual(ccw, 0){
 		s.AsOn()
 	} else if ccw > 0 {
 		s.AsLeft()
@@ -133,6 +133,3 @@ func (v *Vector)  DeflectionAngle(u *Vector) float64 {
 func (v *Vector) IsNull() bool {
 	return math.IsNaN(v[x]) || math.IsNaN(v[y])
 }
-
-
-

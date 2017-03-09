@@ -1,8 +1,8 @@
 package vect
 
 import (
-	. "simplex/util/math"
-	. "simplex/geom"
+	umath "simplex/util/math"
+	"simplex/geom"
 	. "simplex/side"
 	"math"
 	"simplex/cart2d"
@@ -27,8 +27,8 @@ type Options struct {
 
 //vector type
 type Vect struct {
-	a  *Point
-	b  *Point
+	a  *geom.Point
+	b  *geom.Point
 	at float64
 	bt float64
 	v  *Vector
@@ -36,8 +36,8 @@ type Vect struct {
 
 //New create a new Vector
 func NewVect(opts *Options) *Vect {
-	a := NewPointXY(0.0, 0.0)
-	b := NewPointXY(math.NaN(), math.NaN())
+	a := geom.NewPointXY(0.0, 0.0)
+	b := geom.NewPointXY(math.NaN(), math.NaN())
 	v := NewVectorXY(math.NaN(), math.NaN())
 
 	var m, d, at, bt = math.NaN(), math.NaN(), math.NaN(), math.NaN()
@@ -80,12 +80,12 @@ func NewVect(opts *Options) *Vect {
 }
 
 //A gets begin point [x, y]
-func (v *Vect) A() *Point {
+func (v *Vect) A() *geom.Point {
 	return v.a.Clone()
 }
 
 //B gets end point [x, y]
-func (v *Vect) B() *Point {
+func (v *Vect) B() *geom.Point {
 	return v.b.Clone()
 }
 
@@ -130,10 +130,10 @@ func (v *Vect) Dt() float64 {
 }
 
 //SideOfPt computes the relation of a point to a vector
-func (v *Vect) SideOf(pnt *Point) *Side {
+func (v *Vect) SideOf(pnt *geom.Point) *Side {
 	s:= NewSide()
 	ccw := cart2d.CCW(v.a, v.b, pnt)
-	if FloatEqual(ccw, 0){
+	if umath.FloatEqual(ccw, 0){
 		s.AsOn()
 	} else if ccw > 0 {
 		s.AsLeft()
@@ -144,7 +144,7 @@ func (v *Vect) SideOf(pnt *Point) *Side {
 }
 
 //SEDvect computes the Synchronized Euclidean Distance - Vector
-func (v *Vect) SEDVector(pnt *Point, t float64) *Vect {
+func (v *Vect) SEDVector(pnt *geom.Point, t float64) *Vect {
 	m := (v.Magnitude() / v.Dt()) * (t - v.at)
 	vb := v.ExtendVect(m, 0.0, false)
 	opts := &Options{A:vb.b, B:pnt}
@@ -175,7 +175,7 @@ func (v *Vect) DeflectVector(magnitude, defl_angle float64, from_end bool) *Vect
 }
 
 //Dist2Pt computes distance from a point to Vect
-func (v *Vect) DistanceToPoint(pnt *Point) float64 {
+func (v *Vect) DistanceToPoint(pnt *geom.Point) float64 {
 	return cart2d.DistanceToPoint(v.a, v.b, pnt)
 }
 
@@ -192,7 +192,7 @@ func init_val(a  *float64, v *float64) {
 }
 
 //init_point2d
-func init_point2d(a cart2d.Cart2D, v *Point) {
+func init_point2d(a cart2d.Cart2D, v *geom.Point) {
 	if a != nil && !a.IsNull() {
 		v[x], v[y] = a.X(), a.Y()
 	}
