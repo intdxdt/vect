@@ -1,11 +1,10 @@
 package vect
 
 import (
-    umath "simplex/util/math"
-    "github.com/franela/goblin"
     "testing"
-    "math"
     "simplex/geom"
+    "simplex/util/math"
+    "github.com/franela/goblin"
 )
 
 func TestVector(t *testing.T) {
@@ -23,7 +22,7 @@ func TestVector(t *testing.T) {
             v := &Vector{-3, 2}
             unit_v := v.UnitVector()
             for i, v := range *unit_v {
-                (*unit_v)[i] = umath.Round(v, 6)
+                (*unit_v)[i] = math.Round(v, 6)
             }
             g.Assert(unit_v).Equal(&Vector{-0.83205, 0.5547})
             g.Assert(v.IsZero()).IsFalse()
@@ -39,37 +38,18 @@ func TestVector(t *testing.T) {
 
         })
 
-        g.Describe("ccw turn", func() {
-            g.It("turn ccw", func() {
-                a := geom.NewPointXY(237, 289)
-                b := geom.NewPointXY(354.47839239412275, 333.38072601555746)
-                c := geom.NewPointXY(462, 374)
-
-                d := geom.NewPointXY(297.13043478260863, 339.30434782608694)
-                e := geom.NewPointXY(445.8260869565217, 350.17391304347825)
-
-                ab := NewVector(a, b)
-                ac := NewVector(a, c)
-                ad := NewVector(a, d)
-                ae := NewVector(a, e)
-
-                g.Assert(ab.SideOf(ac).IsOn()).IsTrue()
-                g.Assert(ab.SideOf(ad).IsLeft()).IsTrue()
-                g.Assert(ab.SideOf(ae).IsRight()).IsTrue()
-            })
-        })
 
         g.Describe("Vector - unit & Project", func() {
             var u = &Vector{0.88682, -1.06102}
             var v = &Vector{3.5, 1.0}
             g.It("should test projection", func() {
-                g.Assert(umath.Round(u.Project(v), 5)).Equal(0.56121)
+                g.Assert(math.Round(u.Project(v), 5)).Equal(0.56121)
             })
             g.It("should test Unit", func() {
                 Z := &Vector{0., 0.}
                 zv := Z.UnitVector()
-                g.Assert(umath.FloatEqual(zv.X(), 0)).IsTrue()
-                g.Assert(umath.FloatEqual(zv.Y(), 0)).IsTrue()
+                g.Assert(math.FloatEqual(zv.X(), 0)).IsTrue()
+                g.Assert(math.FloatEqual(zv.Y(), 0)).IsTrue()
             })
         })
     })
@@ -77,7 +57,7 @@ func TestVector(t *testing.T) {
     g.Describe("Point - Vector Dot Product", func() {
         g.It("should test dot product", func() {
             dot_prod := NewVectorXY(1.2, -4.2).DotProduct(NewVectorXY(1.2, -4.2))
-            g.Assert(19.08).Equal(umath.Round(dot_prod, 8))
+            g.Assert(19.08).Equal(math.Round(dot_prod, 8))
         })
     })
 
@@ -89,7 +69,7 @@ func TestProject(t *testing.T) {
         g.It("should test projection", func() {
             u := NewVectorXY(A.X(), A.Y())
             v := NewVectorXY(B.X(), B.Y())
-            g.Assert(umath.Round(u.Project(v), 5)).Equal(0.56121)
+            g.Assert(math.Round(u.Project(v), 5)).Equal(0.56121)
         })
     })
 }

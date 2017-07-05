@@ -1,13 +1,11 @@
 package vect
 
 import (
-	umath "simplex/util/math"
 	"simplex/geom"
-	. "simplex/side"
-	"math"
-	"simplex/cart2d"
+	"simplex/side"
+	"simplex/cart"
+	"simplex/util/math"
 )
-const precision = 12
 
 const (
 	x = iota
@@ -16,13 +14,13 @@ const (
 )
 
 type Options struct {
-	A  cart2d.Cart2D
-	B  cart2d.Cart2D
+	A  cart.Pt2D
+	B  cart.Pt2D
 	M  *float64
 	D  *float64
 	At *float64
 	Bt *float64
-	V  cart2d.Cart2D
+	V  cart.Pt2D
 }
 
 //vector type
@@ -130,15 +128,15 @@ func (v *Vect) Dt() float64 {
 }
 
 //SideOfPt computes the relation of a point to a vector
-func (v *Vect) SideOf(pnt *geom.Point) *Side {
-	s:= NewSide()
-	ccw := cart2d.CCW(v.a, v.b, pnt)
-	if umath.FloatEqual(ccw, 0){
+func (v *Vect) SideOf(pnt *geom.Point) *side.Side {
+	s:= side.NewSide()
+	ccw := cart.Orientation2D(v.a, v.b, pnt)
+	if math.FloatEqual(ccw, 0, 1e-10){
 		s.AsOn()
 	} else if ccw > 0 {
-		s.AsLeft()
-	} else {
 		s.AsRight()
+	} else {
+		s.AsLeft()
 	}
 	return s
 }
@@ -153,7 +151,7 @@ func (v *Vect) SEDVector(pnt *geom.Point, t float64) *Vect {
 
 //Extvect extends vector from the from end or from begin of vector
 func (v *Vect)  ExtendVect(magnitude, angle float64, from_end bool) *Vect {
-	cx, cy := cart2d.Extend(v.Vector(), magnitude, angle, from_end)
+	cx, cy := cart.Extend(v.Vector(), magnitude, angle, from_end)
 	cv := NewVectorXY(cx, cy)
 	a  := v.a
 	if from_end {
@@ -165,7 +163,7 @@ func (v *Vect)  ExtendVect(magnitude, angle float64, from_end bool) *Vect {
 //Deflect_vector computes vector deflection given deflection angle and
 // side of vector to deflect from (from_end)
 func (v *Vect) DeflectVector(magnitude, defl_angle float64, from_end bool) *Vect {
-	cx, cy:= cart2d.Deflect(v.Vector(), magnitude, defl_angle, from_end)
+	cx, cy:= cart.Deflect(v.Vector(), magnitude, defl_angle, from_end)
 	cv := NewVectorXY(cx, cy)
 	a  := v.a
 	if from_end {
@@ -176,12 +174,12 @@ func (v *Vect) DeflectVector(magnitude, defl_angle float64, from_end bool) *Vect
 
 //Dist2Pt computes distance from a point to Vect
 func (v *Vect) DistanceToPoint(pnt *geom.Point) float64 {
-	return cart2d.DistanceToPoint(v.a, v.b, pnt)
+	return cart.DistanceToPoint(v.a, v.b, pnt)
 }
 
 //Project vector u on v
 func (u *Vect) Project(onv *Vect) float64 {
-	return cart2d.Project(u.v, onv.v)
+	return cart.Project(u.v, onv.v)
 }
 
 //initval - initlialize values as numbers
@@ -192,13 +190,13 @@ func init_val(a  *float64, v *float64) {
 }
 
 //init_point2d
-func init_point2d(a cart2d.Cart2D, v *geom.Point) {
+func init_point2d(a cart.Pt2D, v *geom.Point) {
 	if a != nil && !a.IsNull() {
 		v[x], v[y] = a.X(), a.Y()
 	}
 }
 //init_vect2d
-func init_vect2d(a cart2d.Cart2D, v *Vector) {
+func init_vect2d(a cart.Pt2D, v *Vector) {
 	if a != nil && !a.IsNull() {
 		v[x], v[y] = a.X(), a.Y()
 	}

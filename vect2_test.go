@@ -94,9 +94,9 @@ func TestSEDVect(t *testing.T) {
 	g.Describe("SEDVector", func() {
 		g.It("should test side sed vector to point at time T", func() {
 
-			a := &Vect3D{10, 150, 6.5}
-			e := &Vect3D{280, 280, 12.8}
-			i := &Vect3D{185, 155, 8.6}
+			a := []float64{10, 150, 6.5}
+			e := []float64{280, 280, 12.8}
+			i := []float64{185, 155, 8.6}
 			ai := &Point{i[x], i[y]}
 
 			v := NewVect(&Options{

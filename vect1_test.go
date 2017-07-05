@@ -1,11 +1,10 @@
 package vect
 
 import (
-	. "simplex/util/math"
-	. "simplex/geom"
+	"simplex/util/math"
 	"github.com/franela/goblin"
 	"testing"
-	"math"
+	. "simplex/geom"
 )
 
 const prec = 8
@@ -110,12 +109,12 @@ func TestVect(t *testing.T) {
 				Bt : &e[z],
 			})
 			m := 5.0
-			dir := Deg2rad(53.13010235415598)
+			dir := math.Deg2rad(53.13010235415598)
 			vk := NewVect(&Options{D : &dir, M : &m, })
 
 			g.Assert(vk.a).Eql(&Point{0, 0})
-			g.Assert(Round(vk.b[x], 8)).Eql(3.0)
-			g.Assert(Round(vk.b[y], 8)).Eql(4.0)
+			g.Assert(math.Round(vk.b[x], 8)).Eql(3.0)
+			g.Assert(math.Round(vk.b[y], 8)).Eql(4.0)
 
 			g.Assert(v.a).Eql(vo.a)
 			g.Assert(v.A()).Eql(vo.a)
@@ -158,8 +157,8 @@ func TestDirection(t *testing.T) {
 			g.Assert(v.Direction()).Equal(math.Pi)
 			g.Assert(NewVectorXY(1, 1).Direction()).Equal(0.7853981633974483)
 			g.Assert(NewVectorXY(-1, 0).Direction()).Equal(math.Pi)
-			g.Assert(NewVectorXY(1, math.Sqrt(3)).Direction()).Equal(Deg2rad(60))
-			g.Assert(NewVectorXY(0, -1).Direction()).Equal(Deg2rad(270))
+			g.Assert(NewVectorXY(1, math.Sqrt(3)).Direction()).Equal(math.Deg2rad(60))
+			g.Assert(NewVectorXY(0, -1).Direction()).Equal(math.Deg2rad(270))
 		})
 	})
 
@@ -173,8 +172,8 @@ func TestReverseDirection(t *testing.T) {
 				A: &Point{0, 0},
 				B: &Point{-1, 0},
 			})
-			g.Assert((v.Direction())).Equal(math.Pi)
-			g.Assert((v.ReverseDirection())).Equal(0.0)
+			g.Assert(v.Direction()).Equal(math.Pi)
+			g.Assert(v.ReverseDirection()).Equal(0.0)
 		})
 	})
 
@@ -190,14 +189,14 @@ func TestDeflection(t *testing.T) {
 			v0 := NewVect(&Options{A: ln0[0], B: ln0[1]})
 			v1 := NewVect(&Options{A: ln1[0], B: ln1[1]})
 
-			g.Assert(Round(v0.DeflectionAngle(v1), 10)).Equal(Round(Deg2rad(93.17983011986422), 10))
-			g.Assert(Round(v0.DeflectionAngle(v0), 10)).Equal(Deg2rad(0.0))
+			g.Assert(math.Round(v0.DeflectionAngle(v1), 10)).Equal(math.Round(math.Deg2rad(93.17983011986422), 10))
+			g.Assert(math.Round(v0.DeflectionAngle(v0), 10)).Equal(math.Deg2rad(0.0))
 
 			ln1 = []*Point{{20, 30}, {20, 60}}
 			v1 = NewVect(&Options{A: ln1[0], B: ln1[1]})
 
-			g.Assert(Round(v0.DeflectionAngle(v1), 10)).Equal(
-				Round(Deg2rad(-33.690067525979806), 10),
+			g.Assert(math.Round(v0.DeflectionAngle(v1), 10)).Equal(
+				math.Round(math.Deg2rad(-33.690067525979806), 10),
 			)
 		})
 	})
@@ -210,7 +209,7 @@ func TestProj(t *testing.T) {
 		g.It("should test projection", func() {
 			u := NewVect(&Options{A:NewPointXY(0, 0),  B:A})
 			v := NewVect(&Options{A:NewPointXY(0, 0),  B:B})
-			g.Assert(Round(u.Project(v), 5)).Equal(0.56121)
+			g.Assert(math.Round(u.Project(v), 5)).Equal(0.56121)
 		})
 	})
 }
