@@ -1,10 +1,10 @@
 package vect
 
 import (
-	"simplex/geom"
 	"simplex/side"
-	"simplex/cart"
-	"simplex/util/math"
+	"github.com/intdxdt/geom"
+	"github.com/intdxdt/cart"
+	"github.com/intdxdt/math"
 )
 
 const (
@@ -14,13 +14,13 @@ const (
 )
 
 type Options struct {
-	A  cart.Pt2D
-	B  cart.Pt2D
+	A  cart.Coord2D
+	B  cart.Coord2D
 	M  *float64
 	D  *float64
 	At *float64
 	Bt *float64
-	V  cart.Pt2D
+	V  cart.Coord2D
 }
 
 //vector type
@@ -40,14 +40,14 @@ func NewVect(opts *Options) *Vect {
 
 	var m, d, at, bt = math.NaN(), math.NaN(), math.NaN(), math.NaN()
 
-	init_point2d(opts.A, a)
-	init_point2d(opts.B, b)
-	init_vect2d(opts.V, v)
+	initPoint2d(opts.A, a)
+	initPoint2d(opts.B, b)
+	initVect2d(opts.V, v)
 
-	init_val(opts.M, &m)
-	init_val(opts.D, &d)
-	init_val(opts.At, &at)
-	init_val(opts.Bt, &bt)
+	initVal(opts.M, &m)
+	initVal(opts.D, &d)
+	initVal(opts.At, &at)
+	initVal(opts.Bt, &bt)
 
 	//if not empty slice b , compute v
 	if opts.B != nil {
@@ -150,11 +150,11 @@ func (v *Vect) SEDVector(pnt *geom.Point, t float64) *Vect {
 }
 
 //Extvect extends vector from the from end or from begin of vector
-func (v *Vect)  ExtendVect(magnitude, angle float64, from_end bool) *Vect {
-	cx, cy := cart.Extend(v.Vector(), magnitude, angle, from_end)
+func (v *Vect)  ExtendVect(magnitude, angle float64, fromEnd bool) *Vect {
+	cx, cy := cart.Extend(v.Vector(), magnitude, angle, fromEnd)
 	cv := NewVectorXY(cx, cy)
 	a  := v.a
-	if from_end {
+	if fromEnd {
 		a = v.b
 	}
 	return &Vect{a:a.Clone(), b: a.Add(cv), v:cv}
@@ -162,11 +162,11 @@ func (v *Vect)  ExtendVect(magnitude, angle float64, from_end bool) *Vect {
 
 //Deflect_vector computes vector deflection given deflection angle and
 // side of vector to deflect from (from_end)
-func (v *Vect) DeflectVector(magnitude, defl_angle float64, from_end bool) *Vect {
-	cx, cy:= cart.Deflect(v.Vector(), magnitude, defl_angle, from_end)
+func (v *Vect) DeflectVector(magnitude, deflAngle float64, fromEnd bool) *Vect {
+	cx, cy:= cart.Deflect(v.Vector(), magnitude, deflAngle, fromEnd)
 	cv := NewVectorXY(cx, cy)
 	a  := v.a
-	if from_end {
+	if fromEnd {
 		a = v.b
 	}
 	return &Vect{a:a.Clone(), b: a.Add(cv), v:cv}
@@ -183,20 +183,20 @@ func (u *Vect) Project(onv *Vect) float64 {
 }
 
 //initval - initlialize values as numbers
-func init_val(a  *float64, v *float64) {
+func initVal(a  *float64, v *float64) {
 	if a != nil {
 		*v = *a
 	}
 }
 
 //init_point2d
-func init_point2d(a cart.Pt2D, v *geom.Point) {
+func initPoint2d(a cart.Coord2D, v *geom.Point) {
 	if a != nil && !a.IsNull() {
 		v[x], v[y] = a.X(), a.Y()
 	}
 }
 //init_vect2d
-func init_vect2d(a cart.Pt2D, v *Vector) {
+func initVect2d(a cart.Coord2D, v *Vector) {
 	if a != nil && !a.IsNull() {
 		v[x], v[y] = a.X(), a.Y()
 	}

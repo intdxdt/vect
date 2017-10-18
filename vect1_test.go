@@ -1,17 +1,17 @@
 package vect
 
 import (
-	"simplex/util/math"
-	"github.com/franela/goblin"
 	"testing"
-	. "simplex/geom"
+	"github.com/intdxdt/math"
+	"github.com/intdxdt/geom"
+	"github.com/franela/goblin"
 )
 
 const prec = 8
 
-var A = &Point{0.88682, -1.06102}
-var B = &Point{3.5, 1.0}
-var C = &Point{-3, 1.0}
+var A = &geom.Point{0.88682, -1.06102}
+var B = &geom.Point{3.5, 1.0}
+var C = &geom.Point{-3, 1.0}
 
 
 
@@ -21,8 +21,8 @@ func TestInitVector(t *testing.T) {
 	g.Describe("Test Init Vector", func() {
 		v := NewVect(&Options{})
 		g.It("should test zero vector", func() {
-			g.Assert(v.A()).Eql(&Point{0, 0})
-			g.Assert(v.B()).Eql(&Point{0, 0})
+			g.Assert(v.A()).Eql(&geom.Point{0, 0})
+			g.Assert(v.B()).Eql(&geom.Point{0, 0})
 			g.Assert(v.Vector()).Eql(&Vector{0, 0})
 			mdatbt := []float64{v.Magnitude(), v.Direction(), v.at, v.bt}
 			for _, o := range mdatbt {
@@ -30,9 +30,9 @@ func TestInitVector(t *testing.T) {
 			}
 		})
 		g.It("should test compoent", func() {
-			v := NewVect(&Options{V:NewPointXY(3, 4)})
-			g.Assert(v.A()).Eql(&Point{0, 0})
-			g.Assert(v.B()).Eql(&Point{3, 4})
+			v := NewVect(&Options{V:geom.NewPointXY(3, 4)})
+			g.Assert(v.A()).Eql(&geom.Point{0, 0})
+			g.Assert(v.B()).Eql(&geom.Point{3, 4})
 			g.Assert(v.Vector()).Eql(&Vector{3, 4})
 			g.Assert(v.Magnitude()).Equal(5.0)
 		})
@@ -49,15 +49,15 @@ func Test_Neg(t *testing.T) {
 			a := []float64{10, 150, 6.5}
 			e := []float64{280, 280, 12.8}
 			opts := &Options{
-				A:NewPoint(a[:]),
-				B:NewPoint(e[:]),
+				A:geom.NewPoint(a[:]),
+				B:geom.NewPoint(e[:]),
 				At:  &a[2],
 				Bt : &e[2],
 			}
 			v := NewVect(opts)
 			pv := v.v
 			nv := v.v.Neg()
-			negA := &Point{0, 0}
+			negA := &geom.Point{0, 0}
 			for i, v := range A {
 				negA[i] = -v
 			}
@@ -66,16 +66,16 @@ func Test_Neg(t *testing.T) {
 
 			//test immutability
 			va := v.A()
-			g.Assert(va).Eql(&Point{a[x], a[y]})
+			g.Assert(va).Eql(&geom.Point{a[x], a[y]})
 			va[x], va[y] = 31, 33
 			//should not affect vector
-			g.Assert(v.A()).Eql(&Point{a[x], a[y]})
+			g.Assert(v.A()).Eql(&geom.Point{a[x], a[y]})
 
 			ve := v.B()
-			g.Assert(ve).Eql(&Point{e[x], e[y]})
+			g.Assert(ve).Eql(&geom.Point{e[x], e[y]})
 			ve[x], ve[y] = 31, 33
 			//should not affect vector
-			g.Assert(v.B()).Eql(&Point{e[x], e[y]})
+			g.Assert(v.B()).Eql(&geom.Point{e[x], e[y]})
 		})
 	})
 
@@ -91,20 +91,20 @@ func TestVect(t *testing.T) {
 			i := []float64{185, 155, 8.6}
 
 			v := NewVect(&Options{
-				A:NewPoint(a[:]),
-				B:NewPoint(e[:]),
+				A:geom.NewPoint(a[:]),
+				B:geom.NewPoint(e[:]),
 				At:&a[z],
 				Bt:&e[z],
 			})
 			vo := NewVect(&Options{
-				A:NewPoint(a[:]),
-				B:NewPoint(e[:]),
+				A:geom.NewPoint(a[:]),
+				B:geom.NewPoint(e[:]),
 				At : &a[z],
 				Bt : &e[z],
 			})
 			vi := NewVect(&Options{
-				A:NewPoint(i[:]),
-				B:NewPoint(e[:]),
+				A:geom.NewPoint(i[:]),
+				B:geom.NewPoint(e[:]),
 				At : &a[z],
 				Bt : &e[z],
 			})
@@ -112,7 +112,7 @@ func TestVect(t *testing.T) {
 			dir := math.Deg2rad(53.13010235415598)
 			vk := NewVect(&Options{D : &dir, M : &m, })
 
-			g.Assert(vk.a).Eql(&Point{0, 0})
+			g.Assert(vk.a).Eql(&geom.Point{0, 0})
 			g.Assert(math.Round(vk.b[x], 8)).Eql(3.0)
 			g.Assert(math.Round(vk.b[y], 8)).Eql(4.0)
 
@@ -126,9 +126,9 @@ func TestVect(t *testing.T) {
 			g.Assert(v.Direction()).Equal(vo.Direction())
 			g.Assert(v.Direction()).Equal(vo.Direction())
 
-			g.Assert(v.a).Eql(&Point{a[0], a[1]})
-			g.Assert(v.b).Eql(&Point{e[0], e[1]})
-			g.Assert(vi.a).Eql(&Point{i[0], i[1]})
+			g.Assert(v.a) .Eql(&geom.Point{a[0], a[1]})
+			g.Assert(v.b) .Eql(&geom.Point{e[0], e[1]})
+			g.Assert(vi.a).Eql(&geom.Point{i[0], i[1]})
 			g.Assert(vi.b).Eql(v.b)
 
 			g.Assert(v.at).Equal(a[2])
@@ -137,8 +137,8 @@ func TestVect(t *testing.T) {
 			g.Assert(v.Bt()).Equal(e[2])
 			g.Assert(v.Dt()).Equal(e[2] - a[2])
 
-			_a := &Point{a[0], a[1]}
-			_e := &Point{e[0], e[1]}
+			_a := &geom.Point{a[0], a[1]}
+			_e := &geom.Point{e[0], e[1]}
 			d := _e.Magnitude(_a)
 			g.Assert(v.Magnitude()).Equal(d)
 		})
@@ -151,8 +151,8 @@ func TestDirection(t *testing.T) {
 	g.Describe("Vector Direction", func() {
 		g.It("should test vector direction", func() {
 			v := NewVect(&Options{
-				A: &Point{0, 0},
-				B: &Point{-1, 0},
+				A: &geom.Point{0, 0},
+				B: &geom.Point{-1, 0},
 			})
 			g.Assert(v.Direction()).Equal(math.Pi)
 			g.Assert(NewVectorXY(1, 1).Direction()).Equal(0.7853981633974483)
@@ -169,8 +169,8 @@ func TestReverseDirection(t *testing.T) {
 	g.Describe("Vector RevDirection", func() {
 		g.It("should test reverse vector direction", func() {
 			v := NewVect(&Options{
-				A: &Point{0, 0},
-				B: &Point{-1, 0},
+				A: &geom.Point{0, 0},
+				B: &geom.Point{-1, 0},
 			})
 			g.Assert(v.Direction()).Equal(math.Pi)
 			g.Assert(v.ReverseDirection()).Equal(0.0)
@@ -183,8 +183,8 @@ func TestDeflection(t *testing.T) {
 	g := goblin.Goblin(t)
 	g.Describe("Vector Deflection", func() {
 		g.It("should test reverse vector direction", func() {
-			ln0 := []*Point{{0, 0}, {20, 30}}
-			ln1 := []*Point{{20, 30}, {40, 15}}
+			ln0 := []*geom.Point{{0, 0}, {20, 30}}
+			ln1 := []*geom.Point{{20, 30}, {40, 15}}
 
 			v0 := NewVect(&Options{A: ln0[0], B: ln0[1]})
 			v1 := NewVect(&Options{A: ln1[0], B: ln1[1]})
@@ -192,7 +192,7 @@ func TestDeflection(t *testing.T) {
 			g.Assert(math.Round(v0.DeflectionAngle(v1), 10)).Equal(math.Round(math.Deg2rad(93.17983011986422), 10))
 			g.Assert(math.Round(v0.DeflectionAngle(v0), 10)).Equal(math.Deg2rad(0.0))
 
-			ln1 = []*Point{{20, 30}, {20, 60}}
+			ln1 = []*geom.Point{{20, 30}, {20, 60}}
 			v1 = NewVect(&Options{A: ln1[0], B: ln1[1]})
 
 			g.Assert(math.Round(v0.DeflectionAngle(v1), 10)).Equal(
@@ -207,8 +207,8 @@ func TestProj(t *testing.T) {
 	g := goblin.Goblin(t)
 	g.Describe("vect - Project", func() {
 		g.It("should test projection", func() {
-			u := NewVect(&Options{A:NewPointXY(0, 0),  B:A})
-			v := NewVect(&Options{A:NewPointXY(0, 0),  B:B})
+			u := NewVect(&Options{A:geom.NewPointXY(0, 0),  B:A})
+			v := NewVect(&Options{A:geom.NewPointXY(0, 0),  B:B})
 			g.Assert(math.Round(u.Project(v), 5)).Equal(0.56121)
 		})
 	})

@@ -1,9 +1,9 @@
 package vect
 
 import (
-	"simplex/geom"
-	"simplex/util/math"
-	"simplex/cart"
+	"github.com/intdxdt/geom"
+	"github.com/intdxdt/math"
+	"github.com/intdxdt/cart"
 )
 //Vector Type
 type Vector [2]float64

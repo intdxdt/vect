@@ -4,7 +4,7 @@ import (
     "testing"
     "math/rand"
     "time"
-    "simplex/geom"
+    "github.com/intdxdt/geom"
 )
 
 func RandPoint(size int) *geom.Point {
