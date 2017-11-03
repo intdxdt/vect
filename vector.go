@@ -75,7 +75,7 @@ func (v *Vector) Magnitude() float64 {
 //Computes the square vector magnitude of pt as vector: x , y as components
 //This has a potential overflow problem based on coordinates of pt x^2 + y^2
 func (v *Vector)  SquareMagnitude() float64 {
-	return cart.SquareMagnitude(v)
+	return cart.MagnitudeSquare(v)
 }
 
 //Dot Product of two points as vectors

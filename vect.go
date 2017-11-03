@@ -131,7 +131,7 @@ func (v *Vect) Dt() float64 {
 func (v *Vect) SideOf(pnt *geom.Point) *side.Side {
 	s:= side.NewSide()
 	ccw := cart.Orientation2D(v.a, v.b, pnt)
-	if math.FloatEqual(ccw, 0, 1e-10){
+	if math.FloatEqual(ccw, 0){
 		s.AsOn()
 	} else if ccw > 0 {
 		s.AsRight()
