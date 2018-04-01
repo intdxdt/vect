@@ -97,7 +97,7 @@ func (u *Vector) Project(v *Vector) float64 {
 
 //Dir computes direction in radians - counter clockwise from x-axis.
 func (v *Vector) Direction() float64 {
-	return cart.DirectionXY(v[x], v[y])
+	return cart.Direction(v[x], v[y])
 }
 
 //Reversed direction of vector direction

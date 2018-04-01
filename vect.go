@@ -60,7 +60,7 @@ func NewVect(opts *Options) *Vect {
 
 	//compute b given v and a
 	if !v.IsNull() && b.IsNull() {
-		b = a.Add(v)
+		b = a.Add(v[x], v[y])
 	}
 
 	//b is still empty
@@ -71,9 +71,9 @@ func NewVect(opts *Options) *Vect {
 	}
 
 	return &Vect{
-		a: a, b: b,
+		a:  a, b: b,
 		at: at, bt: bt,
-		v: v,
+		v:  v,
 	}
 }
 
@@ -103,12 +103,12 @@ func (v *Vect) Direction() float64 {
 }
 
 //Reversed direction of vector direction
-func (v *Vect)  ReverseDirection() float64 {
+func (v *Vect) ReverseDirection() float64 {
 	return v.v.ReverseDirection()
 }
 
 //Computes the deflection angle from vector v to u
-func (v *Vect)  DeflectionAngle(u *Vect) float64 {
+func (v *Vect) DeflectionAngle(u *Vect) float64 {
 	return v.v.DeflectionAngle(u.v)
 }
 
@@ -129,9 +129,9 @@ func (v *Vect) Dt() float64 {
 
 //SideOfPt computes the relation of a point to a vector
 func (v *Vect) SideOf(pnt *geom.Point) *side.Side {
-	s:= side.NewSide()
+	s := side.NewSide()
 	ccw := cart.Orientation2D(v.a, v.b, pnt)
-	if math.FloatEqual(ccw, 0){
+	if math.FloatEqual(ccw, 0) {
 		s.AsOn()
 	} else if ccw > 0 {
 		s.AsRight()
@@ -145,31 +145,35 @@ func (v *Vect) SideOf(pnt *geom.Point) *side.Side {
 func (v *Vect) SEDVector(pnt *geom.Point, t float64) *Vect {
 	m := (v.Magnitude() / v.Dt()) * (t - v.at)
 	vb := v.ExtendVect(m, 0.0, false)
-	opts := &Options{A:vb.b, B:pnt}
+	opts := &Options{A: vb.b, B: pnt}
 	return NewVect(opts)
 }
 
 //Extvect extends vector from the from end or from begin of vector
-func (v *Vect)  ExtendVect(magnitude, angle float64, fromEnd bool) *Vect {
+func (v *Vect) ExtendVect(magnitude, angle float64, fromEnd bool) *Vect {
 	cx, cy := cart.Extend(v.Vector(), magnitude, angle, fromEnd)
 	cv := NewVectorXY(cx, cy)
-	a  := v.a
+	a := v.a
 	if fromEnd {
 		a = v.b
 	}
-	return &Vect{a:a.Clone(), b: a.Add(cv), v:cv}
+	return &Vect{a: a.Clone(), b: a.Add(cv[x], cv[y]), v: cv}
 }
 
 //Deflect_vector computes vector deflection given deflection angle and
 // side of vector to deflect from (from_end)
 func (v *Vect) DeflectVector(magnitude, deflAngle float64, fromEnd bool) *Vect {
-	cx, cy:= cart.Deflect(v.Vector(), magnitude, deflAngle, fromEnd)
-	cv := NewVectorXY(cx, cy)
-	a  := v.a
+	var cx, cy = cart.Deflect(v.Vector(), magnitude, deflAngle, fromEnd)
+	var cv = NewVectorXY(cx, cy)
+	var a = v.a
 	if fromEnd {
 		a = v.b
 	}
-	return &Vect{a:a.Clone(), b: a.Add(cv), v:cv}
+	return &Vect{
+		a: a.Clone(),
+		b: a.Add(cv[x], cv[y]),
+		v: cv,
+	}
 }
 
 //Dist2Pt computes distance from a point to Vect
@@ -183,7 +187,7 @@ func (u *Vect) Project(onv *Vect) float64 {
 }
 
 //initval - initlialize values as numbers
-func initVal(a  *float64, v *float64) {
+func initVal(a *float64, v *float64) {
 	if a != nil {
 		*v = *a
 	}
@@ -195,6 +199,7 @@ func initPoint2d(a cart.Coord2D, v *geom.Point) {
 		v[x], v[y] = a.X(), a.Y()
 	}
 }
+
 //init_vect2d
 func initVect2d(a cart.Coord2D, v *Vector) {
 	if a != nil && !a.IsNull() {
