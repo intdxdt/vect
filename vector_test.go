@@ -11,20 +11,20 @@ func TestVector(t *testing.T) {
     g := goblin.Goblin(t)
     g.Describe("Point -  Unit Vector", func() {
         g.It("should test unit vector", func() {
-            a := NewVectorXY(237, 289)
-            b := NewVectorXY(462, 374)
-            ab := a.Add(b)
+            var a = NewVectorXY(237, 289)
+            var b = NewVectorXY(462, 374)
+            var ab = a.Add(b)
             g.Assert(ab.X()).Equal(237 + 462.)
             g.Assert(ab.Y()).Equal(289 + 374.)
 
-            v0 := &Vector{0, 0 }
-            v1 := &Vector{-3, math.NaN()}
-            v := &Vector{-3, 2}
-            unit_v := v.UnitVector()
-            for i, v := range *unit_v {
-                (*unit_v)[i] = math.Round(v, 6)
+            var v0 = &Vector{0, 0 }
+            var v1 = &Vector{-3, math.NaN()}
+            var v  = &Vector{-3, 2}
+            unitV := v.UnitVector()
+            for i, v := range *unitV {
+                (*unitV)[i] = math.Round(v, 6)
             }
-            g.Assert(unit_v).Equal(&Vector{-0.83205, 0.5547})
+            g.Assert(unitV).Equal(&Vector{-0.83205, 0.5547})
             g.Assert(v.IsZero()).IsFalse()
             g.Assert(v0.IsZero()).IsTrue()
             g.Assert(v0.IsNull()).IsFalse()
@@ -46,7 +46,7 @@ func TestVector(t *testing.T) {
                 g.Assert(math.Round(u.Project(v), 5)).Equal(0.56121)
             })
             g.It("should test Unit", func() {
-                Z := &Vector{0., 0.}
+                Z := &Vector{0, 0}
                 zv := Z.UnitVector()
                 g.Assert(math.FloatEqual(zv.X(), 0)).IsTrue()
                 g.Assert(math.FloatEqual(zv.Y(), 0)).IsTrue()
