@@ -71,9 +71,7 @@ func NewVect(opts *Options) *Vect {
 	}
 
 	return &Vect{
-		a: a, b: b,
-		at: at, bt: bt,
-		v: v,
+		a: a, b: b, at: at, bt: bt, v: v,
 	}
 }
 
