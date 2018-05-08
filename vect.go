@@ -1,7 +1,7 @@
 package vect
 
 import (
-	"simplex/side"
+	"github.com/intdxdt/side"
 	"github.com/intdxdt/geom"
 	"github.com/intdxdt/cart"
 	"github.com/intdxdt/math"

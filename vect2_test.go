@@ -1,11 +1,11 @@
 package vect
 
 import (
+	"testing"
 	"github.com/intdxdt/math"
 	"github.com/intdxdt/geom"
-	"simplex/side"
+	"github.com/intdxdt/side"
 	"github.com/franela/goblin"
-	"testing"
 )
 
 var A2 = &geom.Point{0.88682, -1.06102}
