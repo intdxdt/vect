@@ -3,7 +3,6 @@ package vect
 import (
 	"github.com/intdxdt/side"
 	"github.com/intdxdt/geom"
-	"github.com/intdxdt/cart"
 	"github.com/intdxdt/math"
 )
 
@@ -13,194 +12,127 @@ const (
 	z
 )
 
-type Options struct {
-	A  cart.Coord2D
-	B  cart.Coord2D
-	M  *float64
-	D  *float64
-	At *float64
-	Bt *float64
-	V  cart.Coord2D
-}
+//Vector Type
+type Vector geom.Point
 
 //vector type
 type Vect struct {
-	a  *geom.Point
-	b  *geom.Point
-	at float64
-	bt float64
-	v  *Vector
+	A geom.Point
+	B geom.Point
+	V Vector
 }
 
-//New create a new Vector
-func NewVect(opts *Options) *Vect {
-	a := geom.NewPointXY(0.0, 0.0)
-	b := geom.NewPointXY(math.NaN(), math.NaN())
-	v := NewVectorXY(math.NaN(), math.NaN())
-
-	var m, d, at, bt = math.NaN(), math.NaN(), math.NaN(), math.NaN()
-
-	initPoint2d(opts.A, a)
-	initPoint2d(opts.B, b)
-	initVect2d(opts.V, v)
-
-	initVal(opts.M, &m)
-	initVal(opts.D, &d)
-	initVal(opts.At, &at)
-	initVal(opts.Bt, &bt)
-
-	//if not empty slice b , compute v
-	if opts.B != nil {
-		v = NewVector(a, b)
-	}
-	//compute v , given m & d
-	if v.IsNull() && !math.IsNaN(m) && !math.IsNaN(d) {
-		v = NewVectorMagDir(m, d)
-	}
-
-	//compute b given v and a
-	if !v.IsNull() && b.IsNull() {
-		b = a.Add(v[x], v[y])
-	}
-
-	//b is still empty
-	if b.IsNull() {
-		b[x], b[y] = a[x], a[y]
-		at, bt = a[z], a[z]
-		v = NewVectorXY(0.0, 0.0)
-	}
-
-	return &Vect{
-		a: a, b: b, at: at, bt: bt, v: v,
-	}
+//New Vector given start and end point
+func NewVector(a, b geom.Point) Vector {
+	return Vector{b[x] - a[x], b[y] - a[y]}
 }
 
-//A gets begin point [x, y]
-func (v *Vect) A() *geom.Point {
-	return v.a.Clone()
+//Creates A new vector with component x and y
+func NewVectorXY(x, y float64) Vector {
+	return Vector{x, y}
 }
 
-//B gets end point [x, y]
-func (v *Vect) B() *geom.Point {
-	return v.b.Clone()
-}
-
-//V gets component vector
-func (v *Vect) Vector() *Vector {
-	return v.v.Clone()
+//New create A new Vector
+func NewVect(a, b geom.Point) *Vect {
+	return &Vect{A: a, B: b, V: NewVector(a, b)}
 }
 
 //M gets magnitude of Vector
 func (v *Vect) Magnitude() float64 {
-	return v.v.Magnitude()
+	return v.V.Magnitude()
 }
 
 //Computes the Direction of Vector
 func (v *Vect) Direction() float64 {
-	return v.v.Direction()
+	return v.V.Direction()
 }
 
 //Reversed direction of vector direction
 func (v *Vect) ReverseDirection() float64 {
-	return v.v.ReverseDirection()
+	return v.V.ReverseDirection()
 }
 
-//Computes the deflection angle from vector v to u
+//Computes the deflection angle from vector V to u
 func (v *Vect) DeflectionAngle(u *Vect) float64 {
-	return v.v.DeflectionAngle(u.v)
+	return v.V.DeflectionAngle(u.V)
 }
 
 //At gets  time at begin point :number
 func (v *Vect) At() float64 {
-	return v.at
+	return v.A[geom.Z]
 }
 
 //Bt gets Time at end point
 func (v *Vect) Bt() float64 {
-	return v.bt
+	return v.B[geom.Z]
 }
 
 //Dt computs the change in time
 func (v *Vect) Dt() float64 {
-	return math.Abs(v.bt - v.at)
+	return math.Abs(v.Bt() - v.At())
 }
 
-//SideOfPt computes the relation of a point to a vector
+//SideOfPt computes the relation of A point to A vector
 func (v *Vect) SideOf(pnt *geom.Point) *side.Side {
-	s := side.NewSide()
-	ccw := cart.Orientation2D(v.a, v.b, pnt)
+	var ccw = pnt.Orientation2D(&v.A, &v.B)
+	var s = side.NewSide().AsLeft()
 	if math.FloatEqual(ccw, 0) {
 		s.AsOn()
 	} else if ccw > 0 {
 		s.AsRight()
-	} else {
-		s.AsLeft()
 	}
 	return s
 }
 
 //SEDvect computes the Synchronized Euclidean Distance - Vector
-func (v *Vect) SEDVector(pnt *geom.Point, t float64) *Vect {
-	m := (v.Magnitude() / v.Dt()) * (t - v.at)
-	vb := v.ExtendVect(m, 0.0, false)
-	opts := &Options{A: vb.b, B: pnt}
-	return NewVect(opts)
+func (v *Vect) SEDVector(pnt geom.Point, t float64) *Vect {
+	var m = (v.Magnitude() / v.Dt()) * (t - v.At())
+	//var vb = v.ExtendVect(m, 0.0, false)
+	var cx, cy = geom.Extend(
+		v.V[x], v.V[y], m, 0, false,
+	)
+	cx, cy = v.A.Add(cx, cy)
+	return NewVect(geom.Point{cx, cy}, pnt)
 }
 
 //Extvect extends vector from the from end or from begin of vector
 func (v *Vect) ExtendVect(magnitude, angle float64, fromEnd bool) *Vect {
-	cx, cy := cart.Extend(v.Vector(), magnitude, angle, fromEnd)
-	cv := NewVectorXY(cx, cy)
-	a := v.a
+	var cx, cy = geom.Extend(v.V[x], v.V[y], magnitude, angle, fromEnd)
+	var cv = NewVectorXY(cx, cy)
+	var a = v.A
 	if fromEnd {
-		a = v.b
+		a = v.B
 	}
-	return &Vect{a: a.Clone(), b: a.Add(cv[x], cv[y]), v: cv}
+	cx, cy = a.Add(cv[x], cv[y])
+	return &Vect{A: a, B: geom.Point{cx, cy} , V: cv}
 }
 
 //Deflect_vector computes vector deflection given deflection angle and
 // side of vector to deflect from (from_end)
 func (v *Vect) DeflectVector(magnitude, deflAngle float64, fromEnd bool) *Vect {
-	var cx, cy = cart.Deflect(v.Vector(), magnitude, deflAngle, fromEnd)
+	var cx, cy = geom.Deflect(v.V[x], v.V[y], magnitude, deflAngle, fromEnd)
 	var cv = NewVectorXY(cx, cy)
-	var a = v.a
+	var a = v.A
 	if fromEnd {
-		a = v.b
+		a = v.B
 	}
+	cx, cy = a.Add(cv[x], cv[y])
 	return &Vect{
-		a: a.Clone(),
-		b: a.Add(cv[x], cv[y]),
-		v: cv,
+		A: a,
+		B: geom.Point{cx, cy},
+		V: cv,
 	}
 }
 
-//Dist2Pt computes distance from a point to Vect
+//Dist2Pt computes distance from A point to Vect
 func (v *Vect) DistanceToPoint(pnt *geom.Point) float64 {
-	return cart.DistanceToPoint(v.a, v.b, pnt)
+	return geom.DistanceToPoint(&v.A, &v.B, pnt)
 }
 
-//Project vector u on v
+//Project vector u on V
 func (u *Vect) Project(onv *Vect) float64 {
-	return cart.Project(u.v, onv.v)
+	var a, b = geom.Point(u.V), geom.Point(onv.V)
+	return geom.Project(&a, &b)
 }
 
-//initval - initlialize values as numbers
-func initVal(a *float64, v *float64) {
-	if a != nil {
-		*v = *a
-	}
-}
 
-//init_point2d
-func initPoint2d(a cart.Coord2D, v *geom.Point) {
-	if a != nil && !a.IsNull() {
-		v[x], v[y] = a.X(), a.Y()
-	}
-}
-
-//init_vect2d
-func initVect2d(a cart.Coord2D, v *Vector) {
-	if a != nil && !a.IsNull() {
-		v[x], v[y] = a.X(), a.Y()
-	}
-}
