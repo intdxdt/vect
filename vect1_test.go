@@ -1,10 +1,10 @@
 package vect
 
 import (
-	"testing"
-	"github.com/intdxdt/math"
-	"github.com/intdxdt/geom"
 	"github.com/franela/goblin"
+	"github.com/intdxdt/geom"
+	"github.com/intdxdt/math"
+	"testing"
 )
 
 const prec = 8
@@ -12,8 +12,6 @@ const prec = 8
 var A = geom.Point{0.88682, -1.06102}
 var B = geom.Point{3.5, 1.0}
 var C = geom.Point{-3, 1.0}
-
-
 
 //Test Init Vector
 func TestInitVector(t *testing.T) {
@@ -46,13 +44,15 @@ func Test_Neg(t *testing.T) {
 	g := goblin.Goblin(t)
 	g.Describe("Negate Vector", func() {
 		g.It("should test vector negation", func() {
-			var a  = []float64{10, 150, 6.5}
-			var e  = []float64{280, 280, 12.8}
-			var v  = NewVect(geom.CreatePoint(a), geom.CreatePoint(e))
+			var a = []float64{10, 150, 6.5}
+			var e = []float64{280, 280, 12.8}
+			var v = NewVect(geom.CreatePoint(a), geom.CreatePoint(e))
 			var pv = v.V
 			var nv = v.V.Neg()
 			var negA = geom.Point{}
-			for i, v := range A {negA[i] = -v}
+			for i, v := range A {
+				negA[i] = -v
+			}
 			g.Assert(nv).Eql(pv.KProduct(-1))
 			g.Assert(A.Neg()).Eql(negA)
 
@@ -78,14 +78,14 @@ func TestVect(t *testing.T) {
 	g := goblin.Goblin(t)
 	g.Describe("Vector Construct", func() {
 		g.It("should test vector constructor", func() {
-			var a  = []float64{10, 150, 6.5}
-			var e  = []float64{280, 280, 12.8}
-			var i  = []float64{185, 155, 8.6}
-			var v  = NewVect(geom.CreatePoint(a), geom.CreatePoint(e))
+			var a = []float64{10, 150, 6.5}
+			var e = []float64{280, 280, 12.8}
+			var i = []float64{185, 155, 8.6}
+			var v = NewVect(geom.CreatePoint(a), geom.CreatePoint(e))
 			var vo = NewVect(geom.CreatePoint(a), geom.CreatePoint(e))
 			var vi = NewVect(geom.CreatePoint(i[:]), geom.CreatePoint(e[:]))
-			var m  = 5.0
-			var dir= math.Deg2rad(53.13010235415598)
+			var m = 5.0
+			var dir = math.Deg2rad(53.13010235415598)
 			var cx, cy = geom.Component(m, dir)
 			var vk = NewVect(geom.Point{}, geom.Point{cx, cy})
 
@@ -103,8 +103,8 @@ func TestVect(t *testing.T) {
 			g.Assert(v.Direction()).Equal(vo.Direction())
 			g.Assert(v.Direction()).Equal(vo.Direction())
 
-			g.Assert(v.A) .Eql(geom.Point{a[0], a[1], a[2]})
-			g.Assert(v.B) .Eql(geom.Point{e[0], e[1], e[2]})
+			g.Assert(v.A).Eql(geom.Point{a[0], a[1], a[2]})
+			g.Assert(v.B).Eql(geom.Point{e[0], e[1], e[2]})
 			g.Assert(vi.A).Eql(geom.Point{i[0], i[1], i[2]})
 			g.Assert(vi.B).Eql(v.B)
 
@@ -114,7 +114,7 @@ func TestVect(t *testing.T) {
 
 			var aa = geom.Point{a[0], a[1]}
 			var ee = geom.Point{e[0], e[1]}
-			var d  = ee.Magnitude(&aa)
+			var d = ee.Magnitude(&aa)
 			g.Assert(v.Magnitude()).Equal(d)
 		})
 	})
@@ -154,14 +154,14 @@ func TestDeflection(t *testing.T) {
 		g.It("should test reverse vector direction", func() {
 			var ln0 = []geom.Point{{0, 0}, {20, 30}}
 			var ln1 = []geom.Point{{20, 30}, {40, 15}}
-			var v0  = NewVect( ln0[0], ln0[1])
-			var v1  = NewVect( ln1[0], ln1[1])
+			var v0 = NewVect(ln0[0], ln0[1])
+			var v1 = NewVect(ln1[0], ln1[1])
 
 			g.Assert(math.Round(v0.DeflectionAngle(v1), 10)).Equal(math.Round(math.Deg2rad(93.17983011986422), 10))
 			g.Assert(math.Round(v0.DeflectionAngle(v0), 10)).Equal(math.Deg2rad(0.0))
 
 			ln1 = []geom.Point{{20, 30}, {20, 60}}
-			v1 = NewVect( ln1[0],ln1[1])
+			v1 = NewVect(ln1[0], ln1[1])
 
 			g.Assert(math.Round(v0.DeflectionAngle(v1), 10)).Equal(
 				math.Round(math.Deg2rad(-33.690067525979806), 10),
@@ -175,11 +175,9 @@ func TestProj(t *testing.T) {
 	g := goblin.Goblin(t)
 	g.Describe("vect - Project", func() {
 		g.It("should test projection", func() {
-			u := NewVect(geom.PointXY(0, 0),  A)
-			v := NewVect(geom.PointXY(0, 0),  B)
+			u := NewVect(geom.PointXY(0, 0), A)
+			v := NewVect(geom.PointXY(0, 0), B)
 			g.Assert(math.Round(u.Project(v), 5)).Equal(0.56121)
 		})
 	})
 }
-
-

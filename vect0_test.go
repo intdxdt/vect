@@ -1,10 +1,10 @@
 package vect
 
 import (
-	"time"
-	"testing"
-	"math/rand"
 	"github.com/intdxdt/geom"
+	"math/rand"
+	"testing"
+	"time"
 )
 
 func RandPoint(size int) geom.Point {
@@ -34,7 +34,7 @@ var distance = &[]float64{0}
 func BenchmarkDist(b *testing.B) {
 	var dist float64
 	for i := 0; i < N; i++ {
-			dist = tvect.DistanceToPoint(&data[i])
+		dist = tvect.DistanceToPoint(&data[i])
 	}
 	(*distance)[0] = dist
 }
@@ -42,7 +42,7 @@ func BenchmarkDist(b *testing.B) {
 func BenchmarkDistanceToPoint(b *testing.B) {
 	var dist float64
 	for i := 0; i < N; i++ {
-			dist = tvect.DistanceToPoint(&data[i])
+		dist = tvect.DistanceToPoint(&data[i])
 	}
 	(*distance)[0] = dist
 }

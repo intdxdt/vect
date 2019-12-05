@@ -1,9 +1,9 @@
 package vect
 
 import (
-	"github.com/intdxdt/side"
 	"github.com/intdxdt/geom"
 	"github.com/intdxdt/math"
+	"github.com/intdxdt/side"
 )
 
 const (
@@ -104,7 +104,7 @@ func (v *Vect) ExtendVect(magnitude, angle float64, fromEnd bool) *Vect {
 		a = v.B
 	}
 	cx, cy = a.Add(cv[x], cv[y])
-	return &Vect{A: a, B: geom.Point{cx, cy} , V: cv}
+	return &Vect{A: a, B: geom.Point{cx, cy}, V: cv}
 }
 
 //Deflect_vector computes vector deflection given deflection angle and
@@ -134,5 +134,3 @@ func (u *Vect) Project(onv *Vect) float64 {
 	var a, b = geom.Point(u.V), geom.Point(onv.V)
 	return geom.Project(&a, &b)
 }
-
-

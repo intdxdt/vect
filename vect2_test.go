@@ -1,11 +1,11 @@
 package vect
 
 import (
-	"testing"
-	"github.com/intdxdt/math"
-	"github.com/intdxdt/geom"
-	"github.com/intdxdt/side"
 	"github.com/franela/goblin"
+	"github.com/intdxdt/geom"
+	"github.com/intdxdt/math"
+	"github.com/intdxdt/side"
+	"testing"
 )
 
 var A2 = geom.Point{0.88682, -1.06102}
@@ -24,9 +24,9 @@ func TestDistToVect(t *testing.T) {
 	g := goblin.Goblin(t)
 	g.Describe("Vector - Dist2Vect", func() {
 		g.It("should test distance vector", func() {
-			var a       = geom.Point{16.82295, 10.44635}
-			var b       = geom.Point{28.99656, 15.76452}
-			var on_ab   = geom.Point{25.32, 14.16}
+			var a = geom.Point{16.82295, 10.44635}
+			var b = geom.Point{28.99656, 15.76452}
+			var on_ab = geom.Point{25.32, 14.16}
 
 			tpoints := []geom.Point{
 				{30., 0.}, {15.78786, 25.26468}, {-2.61504, -3.09018}, {28.85125, 27.81773},
@@ -34,9 +34,9 @@ func TestDistToVect(t *testing.T) {
 			}
 
 			var t_dists = []float64{14.85, 13.99, 23.69, 12.05, 0.00, 0.00, 0.00}
-			var tvect   = NewVect( a, b)
-			var dists   = make([]float64, len(tpoints))
-			var dists2  = make([]float64, len(tpoints))
+			var tvect = NewVect(a, b)
+			var dists = make([]float64, len(tpoints))
+			var dists2 = make([]float64, len(tpoints))
 
 			for i, tp := range tpoints {
 				dists[i] = tvect.DistanceToPoint(&tp)
@@ -61,9 +61,9 @@ func TestSideOfVect(t *testing.T) {
 				{2, 2}, {0, 2}, {0, -2}, {2, -2}, {0, 0}, {2, 0}, u, k,
 			}
 
-			var v = NewVect( k,  u)
+			var v = NewVect(k, u)
 			var left, right, on = side.NewSide().AsLeft(),
-			side.NewSide().AsRight(), side.NewSide().AsOn()
+				side.NewSide().AsRight(), side.NewSide().AsOn()
 
 			sides := make([]*side.Side, len(testpoints))
 			for i, pnt := range testpoints {
@@ -86,13 +86,13 @@ func TestSEDVect(t *testing.T) {
 	g.Describe("SEDVector", func() {
 		g.It("should test side sed vector to point at time T", func() {
 
-			var a  = []float64{10, 150, 6.5}
-			var e  = []float64{280, 280, 12.8}
-			var i  = []float64{185, 155, 8.6}
+			var a = []float64{10, 150, 6.5}
+			var e = []float64{280, 280, 12.8}
+			var i = []float64{185, 155, 8.6}
 			var ai = geom.Point{i[x], i[y]}
-			var v  = NewVect(
-				  geom.CreatePoint(a),
-				  geom.CreatePoint(e),
+			var v = NewVect(
+				geom.CreatePoint(a),
+				geom.CreatePoint(e),
 			)
 
 			var sedV = v.SEDVector(ai, i[2])
@@ -110,11 +110,11 @@ func TestExtVect(t *testing.T) {
 	g.Describe("Vector - Extend", func() {
 		g.It("should test extending A vector", func() {
 
-			var va  = NewVect(geom.Point{}, A2)
-			var vb  = NewVect(geom.Point{}, B2)
-			var vc  = NewVect(geom.Point{}, C2)
-			var vd  = NewVect(geom.Point{}, D2)
-			var vdb = NewVect( D2,  B2)
+			var va = NewVect(geom.Point{}, A2)
+			var vb = NewVect(geom.Point{}, B2)
+			var vc = NewVect(geom.Point{}, C2)
+			var vd = NewVect(geom.Point{}, D2)
+			var vdb = NewVect(D2, B2)
 
 			g.Assert(math.Round(va.Direction(), prec)).Equal(
 				math.Round(math.Deg2rad(309.889497029295), prec),
