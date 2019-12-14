@@ -27,7 +27,7 @@ func TestInitVector(t *testing.T) {
 				g.Assert(o).Equal(0.0)
 			}
 		})
-		g.It("should test compoent", func() {
+		g.It("should test component", func() {
 			v := NewVect(geom.Point{}, geom.PointXY(3, 4))
 			g.Assert(v.A).Eql(geom.Point{0, 0})
 			g.Assert(v.B).Eql(geom.Point{3, 4})

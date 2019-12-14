@@ -1,10 +1,10 @@
 package vect
 
 import (
-	"testing"
+	"github.com/franela/goblin"
 	"github.com/intdxdt/geom"
 	"github.com/intdxdt/math"
-	"github.com/franela/goblin"
+	"testing"
 )
 
 func TestVector(t *testing.T) {
